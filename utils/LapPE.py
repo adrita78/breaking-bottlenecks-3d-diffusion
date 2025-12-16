@@ -112,9 +112,9 @@ class AddCustomLaplacianEigenPE(BaseTransform):
         sign = -1 + 2 * torch.randint(0, 2, (self.k,))
         eig_vecs = eig_vecs * sign
 
-        # Store as configurable attributes
         data = add_node_attr(data, eig_vecs, attr_name=self.attr_names["eigvecs"])
         data = add_node_attr(data, eig_vals, attr_name=self.attr_names["eigvals"])
 
         return data
+
 
