@@ -131,7 +131,6 @@ class GPSConv(nn.Module):
     def forward(self, h: Tensor, x: Tensor, edge_index: Optional[Tensor] = None,
                 batch: Optional[Tensor] = None, **kwargs) -> Tensor:
 
-        # --- Move all tensors & submodules to the same device as input ---
         device = h.device
         self.to(device)
         h = h.to(device)
@@ -184,7 +183,7 @@ class GPSConv(nn.Module):
             y = self.norm2(y, batch=batch) if self.norm_with_batch else self.norm2(y)
         hs.append(y)
 
-        # --- Combine local + global ---
+        # --- local + global ---
         out = sum(hs)
         out = out + self.mlp(out)
         if self.norm3 is not None:
@@ -193,4 +192,5 @@ class GPSConv(nn.Module):
         return out
 
     def __repr__(self):
+
         return f'{self.__class__.__name__}({self.channels}, conv={self.conv}, heads={self.heads})'
