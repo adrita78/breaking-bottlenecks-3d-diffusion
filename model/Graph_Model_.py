@@ -29,16 +29,17 @@ from yacs.config import CfgNode as CN
 from torch_geometric.graphgym.register import register_config
 from torch_geometric.graphgym.config import cfg
 from utils.ESLapPE import set_cfg_posenc
-set_cfg_posenc(cfg)
 import os
 import argparse
-from featurization import construct_loader
+#from featurization import construct_loader
 from torch_geometric.data import Batch
 import torch
 from torch_geometric.nn import global_add_pool
 import numpy as np
 import torch as th
 
+
+set_cfg_posenc(cfg)
 
 @th.no_grad()
 def concat_all_gather(tensor):
@@ -195,4 +196,5 @@ def timestep_embedding(timesteps, dim, max_period=10000):
       if dim % 2:
         embedding = th.cat([embedding, th.zeros_like(embedding[:, :1])], dim=-1)
       return embedding    
+
 
