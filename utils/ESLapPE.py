@@ -46,9 +46,6 @@ def set_cfg_posenc(cfg):
 
         # Choice of normalization applied to raw PE stats: 'none', 'BatchNorm'
         pecfg.raw_norm_type = 'none'
-
-        # In addition to appending PE to the node features, pass them also as
-        # a separate variable in the PyG graph batch object.
         pecfg.pass_as_var = False
 
     # Config for EquivStable LapPE
@@ -110,7 +107,7 @@ class EquivStableLapPENodeEncoder(torch.nn.Module):
 
         pos_enc = self.linear_encoder_eigenvec(pos_enc)
 
-        # Keep PE separate in a variable
         batch.pe_EquivStableLapPE = pos_enc
+
 
         return batch
