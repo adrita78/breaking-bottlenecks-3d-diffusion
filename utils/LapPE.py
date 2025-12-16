@@ -95,8 +95,6 @@ class AddCustomLaplacianEigenPE(BaseTransform):
 
         eig_vecs = torch.from_numpy(eig_vecs)
         eig_vals = torch.from_numpy(eig_vals)
-
-        # Skip trivial eigenpair (first one)
         eig_vecs = eig_vecs[:, 1:self.k + 1]
         eig_vals = eig_vals[1:self.k + 1]
 
@@ -116,5 +114,6 @@ class AddCustomLaplacianEigenPE(BaseTransform):
         data = add_node_attr(data, eig_vals, attr_name=self.attr_names["eigvals"])
 
         return data
+
 
 
