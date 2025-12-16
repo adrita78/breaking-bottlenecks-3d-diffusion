@@ -10,16 +10,16 @@ from torch.nn.parallel.distributed import DistributedDataParallel as DDP
 from torch.optim import AdamW
 from torch_geometric.data import Batch
 import dist_util, logger
-from fp16_util import (
+from utils.fp16_util import (
     make_master_params,
     master_params_to_model_params,
     model_grads_to_master_grads,
     unflatten_master_params,
     zero_grad,
 )
-from featurization import construct_loader
-from nn import update_ema
-from gaussian_diffusion_ import UniformSampler
+from utils.featurization import construct_loader
+from utils.nn import update_ema
+from utils.gaussian_diffusion_ import UniformSampler
 INITIAL_LOG_LOSS_SCALE = 20.0
 
 class TrainLoop:
@@ -328,3 +328,4 @@ def log_loss_dict(diffusion, ts, losses):
         #    quartile = int(4 * sub_t / diffusion.num_timesteps)
 
         #    logger.logkv_mean(f"{key}_q{quartile}", sub_loss)        
+
