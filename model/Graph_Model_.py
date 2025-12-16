@@ -24,11 +24,10 @@ import torch
 import torch.nn as nn
 from torch.nn import Dropout, Linear, Sequential
 from utils.GPS_Conv import GPSConv
-from utils.ESLapPE import EquivStableLapPENodeEncoder
+from utils.ESLapPE import set_cfg_posenc, EquivStableLapPENodeEncoder
 from yacs.config import CfgNode as CN
 from torch_geometric.graphgym.register import register_config
 from torch_geometric.graphgym.config import cfg
-from utils.ESLapPE import set_cfg_posenc
 import os
 import argparse
 #from featurization import construct_loader
@@ -196,5 +195,6 @@ def timestep_embedding(timesteps, dim, max_period=10000):
       if dim % 2:
         embedding = th.cat([embedding, th.zeros_like(embedding[:, :1])], dim=-1)
       return embedding    
+
 
 
