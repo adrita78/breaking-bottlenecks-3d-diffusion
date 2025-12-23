@@ -1,3 +1,4 @@
+import os
 import argparse
 import os.path as osp
 from typing import Any, Dict, Optional
@@ -23,19 +24,22 @@ from torch import Tensor
 import torch
 import torch.nn as nn
 from torch.nn import Dropout, Linear, Sequential
-from utils.GPS_Conv import GPSConv
-from utils.ESLapPE import set_cfg_posenc, EquivStableLapPENodeEncoder
+from GPS_Conv import GPSConv
+from ESLapPE import EquivStableLapPENodeEncoder
 from yacs.config import CfgNode as CN
 from torch_geometric.graphgym.register import register_config
 from torch_geometric.graphgym.config import cfg
+from ESLapPE import set_cfg_posenc
+set_cfg_posenc(cfg)
 import os
+import argparse
+from featurization import construct_loader
 from torch_geometric.data import Batch
 import torch
 from torch_geometric.nn import global_add_pool
 import numpy as np
+import torch as th
 
-
-set_cfg_posenc(cfg)
 
 @th.no_grad()
 def concat_all_gather(tensor):
@@ -73,6 +77,8 @@ class GraphModel(nn.Module):
         self.d_state        = hparams.d_state
         self.d_conv         = hparams.d_conv
         self.order_by_degree= hparams.order_by_degree
+        self.num_graphs     = hparams.num_graphs
+        self.register_buffer("x_bar", th.randn(self.num_graphs, 1))
 
         # Embedding layers
         self.node_emb    = Linear(74, self.channels - self.pe_dim - self.time_embed_dim - self.context_dim)
@@ -121,8 +127,7 @@ class GraphModel(nn.Module):
         )
 
     def forward(self, t, context, batch, device=None):
-        
-        #h_pe = self.pe_norm(pe)
+
         batch = self.pos_encoder(batch)
         time_emb = timestep_embedding(t, self.time_embed_dim)
         time_emb = time_emb[batch.batch] 
@@ -152,26 +157,21 @@ class GraphModel(nn.Module):
             else:
                 h = conv(h, batch.pos, batch.edge_index, batch.batch, edges=batch.edges, edge_attr=edge_attr)
         
-        #print("h before global_add_pool", h.shape)
         # Global pooling and MLP head
-        #h = global_add_pool(h, batch.batch)
-        #print("shape of h after global_add_pool", h.shape)
+        h = global_add_pool(h, batch.batch)
         output = h
         output = self.mlp(h)
         return output
-   
+
+
     @th.no_grad()
-    def update_xbar(self,  micro, indices: th.Tensor):
-        x = micro.x
-        data = concat_all_gather(x)         # [total_N, D]
-        indices = concat_all_gather(indices)  # [total_N]
-
-        bz = data.shape[0]
-        assert indices.shape[0] == bz, \
-        f"Mismatch: data has {bz} entries, but indices has {indices.shape[0]}"
-        self.x_bar[indices] = data.detach()
-
-    
+    def update_xbar(self, g, graph_ids: th.Tensor):
+        graph_repr = concat_all_gather(g)   # [G_total, 1]
+        graph_ids  = concat_all_gather(graph_ids)    # [G_total]
+        assert graph_repr.shape[0] == graph_ids.shape[0], \
+        f"Mismatch between graph representations and graph IDs"
+        self.x_bar[graph_ids] = graph_repr.detach()
+        
 
 def timestep_embedding(timesteps, dim, max_period=10000):
       """
