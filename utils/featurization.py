@@ -157,6 +157,7 @@ class ConformerDataset(Dataset):
 
     def get(self, idx):
         data = self.datapoints[idx]
+        data.graph_id = torch.tensor(idx, dtype=torch.long)
         return data
 
     def open_pickle(self, mol_path):
@@ -255,4 +256,5 @@ def construct_loader(args, modes=('train', 'val')):
 
     return loaders[0] if len(loaders) == 1 else loaders
     
+
 
