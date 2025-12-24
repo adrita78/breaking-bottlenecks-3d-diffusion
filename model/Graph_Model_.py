@@ -78,7 +78,7 @@ class GraphModel(nn.Module):
         self.d_conv         = hparams.d_conv
         self.order_by_degree= hparams.order_by_degree
         self.num_graphs     = hparams.num_graphs
-        self.register_buffer("x_bar", th.randn(self.num_graphs, 1))
+        self.register_buffer("x_bar", th.randn(self.num_graphs, 74))
 
         # Embedding layers
         self.node_emb    = Linear(74, self.channels - self.pe_dim - self.time_embed_dim - self.context_dim)
@@ -192,6 +192,7 @@ def timestep_embedding(timesteps, dim, max_period=10000):
       if dim % 2:
         embedding = th.cat([embedding, th.zeros_like(embedding[:, :1])], dim=-1)
       return embedding    
+
 
 
 
