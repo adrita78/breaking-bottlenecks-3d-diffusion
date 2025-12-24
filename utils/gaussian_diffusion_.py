@@ -253,20 +253,20 @@ class VP_Diffusion:
         batch = self.add_noise(batch, timesteps, device)
         #index = torch.arange(batch.x.size(0), device)
         terms = {}
-        x = batch.x
+        x_graph = global_mean_pool(batch.x, batch.batch)
         model_output = model(batch, timesteps, context=condition,**model_kwargs)
-        model_output = x - model_output
+        model_output = x_graph - model_output
         
         if self.loss_type ==  LossType.MSE:
 
-            terms["guide"] = mean_flat((model_output-x) ** 2)
+            terms["guide"] = mean_flat((model_output-x_graph) ** 2)
             terms["iter"] = mean_flat((model_output-condition) ** 2)
 
             #model.module.update_xbar(model_output,index)
 
         elif self.loss_type == LossType.PH:
 
-            terms["guide"]= ph_loss(model_output,x,c)
+            terms["guide"]= ph_loss(model_output,x_graph,c)
             terms["iter"]= ph_loss(model_output,condition,c)
 
 
@@ -324,5 +324,6 @@ class VP_Diffusion:
                
         return x_bar
     
+
 
     
