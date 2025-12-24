@@ -17,7 +17,7 @@ from utils.fp16_util import (
     unflatten_master_params,
     zero_grad,
 )
-from utils.featurization import construct_loader
+from featurization import construct_loader
 from utils.nn import update_ema
 from utils.gaussian_diffusion_ import UniformSampler
 INITIAL_LOG_LOSS_SCALE = 20.0
@@ -180,11 +180,10 @@ class TrainLoop:
         for i in range(0, (len(batch.ptr) - 1) // self.microbatch * self.microbatch, self.microbatch): 
             micro = batch[i : i + self.microbatch]
             micro_batch = Batch.from_data_list(micro)
-            m_index = torch.arange(micro_batch.x.size(0),dist_util.dev())
+            m_index = micro_batch.graph_id
             condition = self.model.x_bar[m_index].detach().to(dist_util.dev())
             last_batch = (i + self.microbatch) >= (len(batch.ptr) - 1) 
             t, weights = self.schedule_sampler.sample((micro_batch.ptr.size(0) - 1), dist_util.dev())
-            index = torch.arange(batch.x.size(0), dist_util.dev())
             compute_losses = functools.partial(
                    self.diffusion.training_losses,
                    self.ddp_model,
@@ -326,6 +325,5 @@ def log_loss_dict(diffusion, ts, losses):
         # Log the quantiles (four quartiles, in particular).
         #for sub_t, sub_loss in zip(ts.cpu().numpy(), values.detach().cpu().numpy()):
         #    quartile = int(4 * sub_t / diffusion.num_timesteps)
-
         #    logger.logkv_mean(f"{key}_q{quartile}", sub_loss)        
 
