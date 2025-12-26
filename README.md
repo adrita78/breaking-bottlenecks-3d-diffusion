@@ -6,20 +6,11 @@
 
 <p>
 <strong>Overview.</strong>
-This project studies diffusion-based generative modeling through the lens of
-forward noising and reverse-time denoising dynamics.
-The visualization above summarizes the full generative pipeline.
+This repository introduces a fast and scalable diffusion framework for 3D molecular generation based on deterministic denoising. By reinterpreting Directly Denoising Diffusion Models (DDDM) through the Reverse Transition Kernel (RTK) framework, the approach unifies deterministic and stochastic diffusion under a single probabilistic view, enabling variance-free sampling, improved numerical stability, and significantly faster inference. An SE(3)-equivariant, state-space–model (SSM)–based architecture is used to efficiently capture long-range dependencies in large molecular graphs.
 
-In the forward process (top), data samples drawn from the empirical distribution
-\(p_{\text{data}}\) are progressively corrupted with noise until they converge
-to a simple prior distribution \(p_{\text{prior}}\).
-During training, a neural denoising model learns to approximate the corresponding
-reverse-time transition kernels that undo this corruption.
+**Key highlights**
 
-In the generative phase (bottom), new samples are obtained by initializing from
-pure noise \(x_T \sim p_{\text{prior}}\) and iteratively denoising back to a clean
-sample \(x_0\).
-This framework enables efficient learning of complex data distributions while
-maintaining a tractable and stable sampling procedure.
+- Deterministic, RTK-guided denoising for fast and stable molecular diffusion
+- SE(3)-equivariant SSM architecture enabling scalable 3D generation on large molecules
 </p>
 
