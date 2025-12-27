@@ -38,4 +38,10 @@ If you have an NVIDIA GPU and want CUDA acceleration, install PyTorch with CUDA 
 pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
   --index-url https://download.pytorch.org/whl/cu121
 ```
+Install Remaining Dependencies
+Install the remaining required packages using the provided `requirements.txt` file:
+
+```bash
+pip install -r requirements.txt
+```
 
