@@ -34,5 +34,8 @@ conda activate my_env
 Install PyTorch (with CUDA support)
 
 If you have an NVIDIA GPU and want CUDA acceleration, install PyTorch with CUDA 12.1 support:
-
+```bash
+pip install torch==2.3.0 torchvision==0.18.0 torchaudio==2.3.0 \
+  --index-url https://download.pytorch.org/whl/cu121
+```
 
