@@ -28,6 +28,6 @@ conda create --name my_env python=3.10
 
 Activate the environment:
 
-```bash
 conda activate my_env
+
 
