@@ -7,3 +7,5 @@ torch-scatter==2.1.2
 torch-sparse==0.6.18
 torch-cluster==1.6.3
 torch-spline-conv==1.2.2
+
+rdkit==2025.09.2
