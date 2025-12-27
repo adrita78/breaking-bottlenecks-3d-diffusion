@@ -38,10 +38,20 @@ If you have an NVIDIA GPU and want CUDA acceleration, install PyTorch with CUDA 
 pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
   --index-url https://download.pytorch.org/whl/cu121
 ```
+### Step 3: Install State Space Model Dependencies
+
+This project relies on state space model (SSM) libraries such as **Mamba** and **Jamba**.
+
+Install the core packages using `pip`:
+```bash
+pip install mamba-ssm
+pip install jamba
+```
 Install Remaining Dependencies
 Install the remaining required packages using the provided `requirements.txt` file:
 
 ```bash
 pip install -r requirements.txt
 ```
+
 
