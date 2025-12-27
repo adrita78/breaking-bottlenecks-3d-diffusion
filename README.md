@@ -30,5 +30,9 @@ Activate the environment:
 ```bash
 conda activate my_env
 ```
+### Step 2: Install Dependencies
+Install PyTorch (with CUDA support)
+
+If you have an NVIDIA GPU and want CUDA acceleration, install PyTorch with CUDA 12.1 support:
 
 
