@@ -14,3 +14,14 @@ This project introduces a fast and scalable diffusion framework for 3D molecular
 - SE(3)-equivariant SSM architecture enabling scalable 3D generation on large molecules
 </p>
 
+## Installation
+
+### Step 1: Create a Conda Environment
+
+We recommend using **Conda** to manage dependencies. If Conda is not installed, refer to the  
+[Anaconda installation guide](https://docs.anaconda.com/anaconda/install/).
+
+Create a Python 3.10 environment:
+
+```bash
+conda create --name my_env python=3.10
