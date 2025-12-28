@@ -77,6 +77,8 @@ class GraphModel(nn.Module):
         self.d_state        = hparams.d_state
         self.d_conv         = hparams.d_conv
         self.order_by_degree= hparams.order_by_degree
+        self.depth          = hparams.depth
+        self.num_tokens     = hparams.num_tokens
         self.num_graphs     = hparams.num_graphs
         self.register_buffer("x_bar", th.randn(self.num_graphs, 74))
 
@@ -113,6 +115,18 @@ class GraphModel(nn.Module):
                     self.attn_dropout,
                     att_type='transformer'
                 )
+            elif self.model_type == 'jamba':
+                conv = GPSConv(self.channels, eg.EGNN(self.in_node_nf, self.hidden_nf, self.out_node_nf, self.in_edge_nf), 
+                self.heads,
+                self.attn_dropout,
+                att_type='jamba',
+                shuffle_ind=self.shuffle_ind,
+                order_by_degree=self.order_by_degree,
+                d_state=self.d_state,
+                d_conv=self.d_conv,
+                depth=self.depth,              
+                num_tokens=self.num_tokens     
+                )        
             else:
                 raise ValueError(f"Unknown model_type: {self.model_type}")
             self.convs.append(conv)
@@ -192,6 +206,7 @@ def timestep_embedding(timesteps, dim, max_period=10000):
       if dim % 2:
         embedding = th.cat([embedding, th.zeros_like(embedding[:, :1])], dim=-1)
       return embedding    
+
 
 
 
