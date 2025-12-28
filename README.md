@@ -53,5 +53,21 @@ Install the remaining required packages using the provided `requirements.txt` fi
 ```bash
 pip install -r requirements.txt
 ```
+## Downloading the Dataset
+You can download the dataset directly from Harvard Dataverse and extract it using the following commands.
+### Step 1: Download the data
+```bash
+wget https://dataverse.harvard.edu/api/access/datafile/4327252 -O dataset.tar
+```
+This downloads the dataset as a tar archive.
+### Step 2: Extract the archive
+```bash
+tar -xvf dataset.tar
+```
+This will extract the dataset into the current directory.
 
+Additional Notes:
+- Ensure `wget` is installed on your system.
+- The extracted files may take several GB of disk space.
+- If you are on a cluster, run this on a login node or a data-transfer node.
 
