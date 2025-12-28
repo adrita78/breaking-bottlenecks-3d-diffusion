@@ -101,6 +101,16 @@ class GraphModel(nn.Module):
                     d_state=self.d_state,
                     d_conv=self.d_conv
                 )
+            elif self.model_type == 'hydra':
+                conv = GPSConv(
+                    self.channels,
+                    eg.EGNN(self.in_node_nf, self.hidden_nf, self.out_node_nf, self.in_edge_nf),
+                    self.heads,
+                    self.attn_dropout,
+                    att_type='hydra',
+                    d_state=self.d_state,
+                    d_conv=self.d_conv
+                )        
             elif self.model_type == 'transformer':
                 conv = GPSConv(
                     self.channels,
@@ -200,3 +210,4 @@ def timestep_embedding(timesteps, dim, max_period=10000):
       if dim % 2:
         embedding = th.cat([embedding, th.zeros_like(embedding[:, :1])], dim=-1)
       return embedding    
+
