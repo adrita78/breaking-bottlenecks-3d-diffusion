@@ -121,8 +121,8 @@ class GraphModel(nn.Module):
                 )
             elif self.model_type == 'jamba':
                 conv = GPSConv(self.channels, eg.EGNN(self.in_node_nf, self.hidden_nf, self.out_node_nf, self.in_edge_nf), 
-                self.heads,
-                self.attn_dropout,
+                heads=self.heads,
+                attn_dropout=self.attn_dropout,
                 att_type='jamba',
                 shuffle_ind=self.shuffle_ind,
                 order_by_degree=self.order_by_degree,
@@ -210,4 +210,5 @@ def timestep_embedding(timesteps, dim, max_period=10000):
       if dim % 2:
         embedding = th.cat([embedding, th.zeros_like(embedding[:, :1])], dim=-1)
       return embedding    
+
 
