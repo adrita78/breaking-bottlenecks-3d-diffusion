@@ -57,7 +57,6 @@ class LossType(enum.Enum):
     MSE = enum.auto()  # use raw MSE loss
 
     PH = enum.auto() # Pseudo-Huber
-    PL = enum.auto() # Pseudo-LPIPS
 
 
 def _extract_into_tensor(arr, timesteps, broadcast_shape):
@@ -172,9 +171,7 @@ class VP_Diffusion:
 
         alphas = 1.0 - betas 
         self.alphas_cumprod = np.cumprod(alphas, axis=0)
-        #self.diffusion = diffusion
-
-
+        
         self.alphas_cumprod_prev = np.append(1.0, self.alphas_cumprod[:-1])
         self.alphas_cumprod_next = np.append(self.alphas_cumprod[1:], 0.0)
         assert self.alphas_cumprod_prev.shape == (self.num_timesteps,)
@@ -185,7 +182,7 @@ class VP_Diffusion:
         self.log_one_minus_alphas_cumprod = np.log(1.0 - self.alphas_cumprod)
         self.sqrt_recip_alphas_cumprod = np.sqrt(1.0 / self.alphas_cumprod)
         self.sqrt_recipm1_alphas_cumprod = np.sqrt(1.0 / self.alphas_cumprod - 1)
-        #self.schedule_sampler = schedule_sampler or UniformSampler(diffusion)
+        
 
     def q_sample(self, x, t, noise=None):
         x = x.float()
@@ -229,46 +226,69 @@ class VP_Diffusion:
         batch.x = torch.cat(noisy_x, dim=0)
         return batch
 
-    def training_losses(self, model, batch, timesteps, index, condition, c=0.0, device = None, model_kwargs=None):
+    def training_losses(self,
+        model,
+        batch,
+        timesteps,
+        index,
+        condition,
+        c: float = 0.0,
+        device=None,
+        model_kwargs=None
+    ):
         """
-        Compute training losses for a single timestep.
+        Compute the diffusion training losses.
 
-        :param model: the model to evaluate loss on.
-        :param x_start: input tensor.
-        :param t: a batch of timestep indices.
+        :param model: the model to evaluate.
+        :param batch: a batch of data.
+        :param timesteps: a 1-D tensor of timesteps.
+        :param index: a 1-D tensor of indices for the timesteps.
+        :param condition: conditioning information for the model.
+        :param c: Pseudo-Huber loss parameter.
+        :param device: the torch device.
         :param model_kwargs: if not None, a dict of extra keyword arguments to
-            pass to the model. This can be used for conditioning.
-        :param noise: if specified, the specific Gaussian noise to try to remove.
-        :return: a dict with the key "loss" containing a tensor of shape [N].
-                 Some mean or variance settings may also have other keys.
+                             pass to the model.
+        :return: a dict with keys "guide" and "iter", containing the
+                 corresponding losses.
         """
         if model_kwargs is None:
-            model_kwargs = {}
+        model_kwargs = {}
+
         if device is None:
             device = next(model.parameters()).device
-        
         batch = batch.to(device)
         timesteps = timesteps.to(device)
         condition = condition.to(device) if condition is not None else None
+
+        # Apply forward diffusion noise
         batch = self.add_noise(batch, timesteps, device)
-        #index = torch.arange(batch.x.size(0), device)
+
         terms = {}
+
+        # Graph-level representation
         x_graph = global_mean_pool(batch.x, batch.batch)
-        model_output = model(batch, timesteps, context=condition,**model_kwargs)
+
+        # Model forward pass
+        model_output = model(
+           t=timesteps,
+           context=condition,
+           batch=batch,
+           device=device,
+           **model_kwargs,
+        )
+
         model_output = x_graph - model_output
-        
-        if self.loss_type ==  LossType.MSE:
 
-            terms["guide"] = mean_flat((model_output-x_graph) ** 2)
-            terms["iter"] = mean_flat((model_output-condition) ** 2)
+        if self.loss_type == LossType.MSE:
+            terms["guide"] = mean_flat((model_output - x_graph) ** 2)
+            terms["iter"] = mean_flat((model_output - condition) ** 2)
 
-            #model.module.update_xbar(model_output,index)
+        # Optional buffer update
+        # model.module.update_xbar(model_output, index)
 
         elif self.loss_type == LossType.PH:
-
-            terms["guide"]= ph_loss(model_output,x_graph,c)
-            terms["iter"]= ph_loss(model_output,condition,c)
-
+            terms["guide"] = ph_loss(model_output, x_graph, c)
+            terms["iter"] = ph_loss(model_output, condition, c)
 
         else:
             raise NotImplementedError(self.loss_type)
@@ -279,7 +299,6 @@ class VP_Diffusion:
     def p_sample(self, model, batch, timesteps, x_bar,model_kwargs=None):
         
         sample = batch.x - model(batch, timesteps, context=x_bar,**model_kwargs)
-        #sample = sample.clamp(-1, 1)
         return sample
 
 
@@ -323,7 +342,4 @@ class VP_Diffusion:
                 x_bar = out
                
         return x_bar
-    
-
-
     
