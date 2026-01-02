@@ -67,7 +67,7 @@ tar -xvf dataset.tar
 This will extract the dataset into the current directory.
 
 Additional Notes:
-- Ensure `wget` is installed on your system.
+- Ensure `wget` is installed in your system.
 - The extracted files may take several GB of disk space.
 - If you are on a cluster, run this on a login node or a data-transfer node.
 
