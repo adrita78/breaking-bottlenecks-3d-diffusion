@@ -25,7 +25,6 @@ def add_node_attr(
     value: Any,
     attr_name: Optional[str] = None,
 ) -> Data:
-    # TODO Move to `BaseTransform`.
     if attr_name is None:
         if data.x is not None:
             x = data.x.view(-1, 1) if data.x.dim() == 1 else data.x
@@ -114,6 +113,7 @@ class AddCustomLaplacianEigenPE(BaseTransform):
         data = add_node_attr(data, eig_vals, attr_name=self.attr_names["eigvals"])
 
         return data
+
 
 
 
