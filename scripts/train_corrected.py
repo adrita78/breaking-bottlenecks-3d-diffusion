@@ -12,8 +12,7 @@ from torch.nn.parallel.distributed import DistributedDataParallel as DDP
 from torch.optim import AdamW
 from torch_geometric.data import Batch
 
-import dist_util
-import logger
+from utils import dist_util, logger
 
 from utils.fp16_util import (
     make_master_params,
@@ -444,4 +443,5 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
