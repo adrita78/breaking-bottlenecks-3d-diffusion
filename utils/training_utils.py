@@ -24,7 +24,7 @@ from utils.fp16_util import (
 
 from utils.featurization import construct_loader
 from utils.nn import update_ema
-from utils.gaussian_diffusion_ import UniformSampler
+from utils.resample import create_named_schedule_sampler
 
 INITIAL_LOG_LOSS_SCALE = 20.0
 
@@ -443,5 +443,6 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
