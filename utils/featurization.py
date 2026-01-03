@@ -213,46 +213,57 @@ class ConformerDataset(Dataset):
 
 
 
-def construct_loader(args, modes=('train', 'val')):
+def construct_loader(
+    data_dir,
+    split_path,
+    cache,
+    dataset,
+    batch_size,
+    num_workers,
+    limit_train_mols=None,
+    modes=("train", "val"),
+):
     if isinstance(modes, str):
         modes = [modes]
 
     loaders = []
 
     # Only add transform if cache does not already exist
-    if not os.path.exists(args.cache):
+    if not os.path.exists(cache):
         transform = AddCustomLaplacianEigenPE(
             k=10,
             is_undirected=True,
             attr_names={
-        "eigvecs": "lap_eigvecs",
-        "eigvals": "lap_eigvals"}
+                "eigvecs": "lap_eigvecs",
+                "eigvals": "lap_eigvals",
+            },
         )
     else:
         transform = None  # PE already cached
 
-    types = qm9_types if args.dataset == 'qm9' else drugs_types
+    types = qm9_types if dataset == "qm9" else drugs_types
 
     for mode in modes:
-        dataset = ConformerDataset(
-            args.data_dir,
-            args.split_path,
+        dataset_obj = ConformerDataset(
+            data_dir,
+            split_path,
             mode,
-            dataset=args.dataset,
+            dataset=dataset,
             types=types,
             transform=transform,
-            num_workers=args.num_workers,
-            limit_molecules=args.limit_train_mols,
-            cache=args.cache,
+            num_workers=num_workers,
+            limit_molecules=limit_train_mols,
+            cache=cache,
         )
 
         loader = DataLoader(
-            dataset=dataset,
-            batch_size=args.batch_size,
-            shuffle=(mode != 'test'),
-            drop_last=False
+            dataset=dataset_obj,
+            batch_size=batch_size,
+            shuffle=(mode != "test"),
+            drop_last=False,
         )
         loaders.append(loader)
 
     return loaders[0] if len(loaders) == 1 else loaders
+    
     
