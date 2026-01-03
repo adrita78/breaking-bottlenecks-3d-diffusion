@@ -35,8 +35,7 @@ def model_and_diffusion_defaults():
         beta_start=1e-5,
         beta_end=2e-2,
         loss_type="ph",             # {"mse", "ph"}
-        c=c= 0.000069,
-        schedule_sampler="uniform",
+        c=0.000069,
         use_checkpoint=False,
     )
 
@@ -101,4 +100,5 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError("boolean value expected")
+
 
