@@ -10,7 +10,7 @@ from utils.script_util import (
     args_to_dict,
     add_dict_to_argparser,
 )
-from utils.training_util import TrainLoop
+from utils.training_utils import TrainLoop
 
 def main():
     args = create_argparser().parse_args()
@@ -88,4 +88,5 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
 
