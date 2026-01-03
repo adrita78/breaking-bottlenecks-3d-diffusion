@@ -9,25 +9,16 @@ from yacs.config import CfgNode as CN
 
 @register_config('posenc')
 def set_cfg_posenc(cfg):
-    """Extend configuration with positional encoding options.
-    """
-
-    # Argument group for each Positional Encoding class.
     cfg.posenc_LapPE = CN()
     cfg.posenc_SignNet = CN()
     cfg.posenc_RWSE = CN()
     cfg.posenc_HKdiagSE = CN()
     cfg.posenc_ElstaticSE = CN()
     cfg.posenc_EquivStableLapPE = CN()
-
-    # Common arguments to all PE types.
     for name in ['posenc_LapPE', 'posenc_SignNet',
                  'posenc_RWSE', 'posenc_HKdiagSE', 'posenc_ElstaticSE']:
         pecfg = getattr(cfg, name)
-
-        # Use extended positional encodings
         pecfg.enable = False
-
         # Neural-net model type within the PE encoder:
         # 'DeepSet', 'Transformer', 'Linear', 'none', ...
         pecfg.model = 'none'
@@ -51,8 +42,6 @@ def set_cfg_posenc(cfg):
     # Config for EquivStable LapPE
     cfg.posenc_EquivStableLapPE.enable = True
     cfg.posenc_EquivStableLapPE.raw_norm_type = 'none'
-
-    # Config for Laplacian Eigen-decomposition for PEs that use it.
     for name in ['posenc_LapPE', 'posenc_SignNet', 'posenc_EquivStableLapPE']:
         pecfg = getattr(cfg, name)
         pecfg.eigen = CN()
@@ -111,3 +100,4 @@ class EquivStableLapPENodeEncoder(torch.nn.Module):
 
 
         return batch
+
