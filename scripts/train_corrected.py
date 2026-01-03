@@ -23,7 +23,7 @@ from utils.fp16_util import (
     zero_grad,
 )
 
-from featurization import construct_loader
+from utils.featurization import construct_loader
 from utils.nn import update_ema
 from utils.gaussian_diffusion_ import UniformSampler
 
@@ -444,3 +444,4 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
