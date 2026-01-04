@@ -95,3 +95,12 @@ python train.py \
   --diffusion_steps 1000 \
   --lr 1e-4
 ```
+## 🔁 Resume Training from Checkpoint
+
+To resume training from a previously saved checkpoint, run:
+```bash
+python train.py \
+  --data_dir data/drugs \
+  --split_path splits/drugs_split.npy \
+  --resume_checkpoint checkpoints/model.pt
+```
