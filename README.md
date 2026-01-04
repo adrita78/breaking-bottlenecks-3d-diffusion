@@ -70,4 +70,16 @@ Additional Notes:
 - Ensure `wget` is installed in your system.
 - The extracted files may take several GB of disk space.
 - If you are on a cluster, run this on a login node or a data-transfer node.
-
+## Dataset Setup
+```bash
+# Create dataset directories
+mkdir -p data/drugs/raw
+mkdir -p data/drugs/processed
+mkdir -p splits
+```
+Place your dataset files and split file as follows:
+```bash
+data/qm9/raw/           # raw QM9 data
+data/qm9/processed/     # processed graphs (auto-generated if applicable)
+splits/qm9_split.npy   # train/val split file
+```
