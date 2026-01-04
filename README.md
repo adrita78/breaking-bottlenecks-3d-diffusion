@@ -83,3 +83,15 @@ data/qm9/raw/
 data/qm9/processed/     
 splits/qm9_split.npy   # train/val split file
 ```
+## 🚀 Training Command
+```bash
+python train.py \
+  --data_dir data/qm9 \
+  --split_path splits/qm9_split.npy \
+  --dataset qm9 \
+  --batch_size 32 \
+  --num_workers 4 \
+  --noise_schedule cosine \
+  --diffusion_steps 1000 \
+  --lr 1e-4
+```
