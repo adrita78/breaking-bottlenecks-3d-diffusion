@@ -79,16 +79,16 @@ mkdir -p splits
 ```
 Place your dataset files and split file as follows:
 ```bash
-data/qm9/raw/           
-data/qm9/processed/     
-splits/qm9_split.npy   # train/val split file
+data/drugs/raw/           
+data/drugs/processed/     
+splits/drugs_split.npy   # train/val split file
 ```
 ## 🚀 Training Command
 ```bash
 python train.py \
-  --data_dir data/qm9 \
-  --split_path splits/qm9_split.npy \
-  --dataset qm9 \
+  --data_dir data/drugs \
+  --split_path splits/drugs_split.npy \
+  --dataset drugs \
   --batch_size 32 \
   --num_workers 4 \
   --noise_schedule cosine \
