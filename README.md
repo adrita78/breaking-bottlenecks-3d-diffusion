@@ -79,7 +79,7 @@ mkdir -p splits
 ```
 Place your dataset files and split file as follows:
 ```bash
-data/qm9/raw/           # raw QM9 data
-data/qm9/processed/     # processed graphs (auto-generated if applicable)
+data/qm9/raw/           
+data/qm9/processed/     
 splits/qm9_split.npy   # train/val split file
 ```
