@@ -84,6 +84,7 @@ data/drugs/processed/
 splits/drugs_split.npy   # train/val split file
 ```
 ## 🚀 Training Command
+Once you have configured the hyperparameters, you can launch a training run using environment variables as follows:
 ```bash
 torchrun \
 --standalone \
