@@ -65,10 +65,15 @@ def create_argparser():
     defaults = dict(
         # training
         schedule_sampler="uniform",
-        lr=1e-4,
-        weight_decay=0.0,
+        lr=3e-4,  
+        min_lr=3e-5,  
+        adam_beta1=0.9,
+        adam_beta2=0.95,
+        weight_decay=0.1,
+        lr_schedule="cosine", 
+        warmup_steps=1000,
         epochs=1000,
-        batch_size=32,
+        batch_size=128,
         microbatch=-1,
         ema_rate="0.9999",
         log_interval=10,
@@ -88,6 +93,7 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
 
 
 
