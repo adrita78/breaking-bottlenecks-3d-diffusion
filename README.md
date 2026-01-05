@@ -103,6 +103,10 @@ To explicitly control where checkpoints are saved, set the environment variable,
 ```bash
 export DIFFUSION_BLOB_LOGDIR=checkpoints/graph_dddm_run1
 ```
+You may also specify the directory directly in code:
+```bash
+logger.configure(dir="./checkpoints/graph_dddm")
+```
 ## 🔁 Resume Training from Checkpoint
 
 To resume training from a previously saved checkpoint, run:
