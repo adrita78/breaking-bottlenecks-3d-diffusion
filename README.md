@@ -85,7 +85,10 @@ splits/drugs_split.npy   # train/val split file
 ```
 ## 🚀 Training Command
 ```bash
-python train.py \
+torchrun \
+--standalone \
+--nproc_per_node=8 \
+./scripts/python train.py \
   --data_dir data/drugs \
   --split_path splits/drugs_split.npy \
   --dataset drugs \
@@ -99,7 +102,10 @@ python train.py \
 
 To resume training from a previously saved checkpoint, run:
 ```bash
-python train.py \
+torchrun \
+--standalone \
+--nproc_per_node=8 \
+./scripts/python train.py \
   --data_dir data/drugs \
   --split_path splits/drugs_split.npy \
   --resume_checkpoint checkpoints/model.pt
