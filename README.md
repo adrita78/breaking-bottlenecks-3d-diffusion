@@ -99,6 +99,10 @@ torchrun \
   --diffusion_steps 1000 \
   --lr 1e-4
 ```
+To explicitly control where checkpoints are saved, set the environment variable, for e.g:
+```bash
+export DIFFUSION_BLOB_LOGDIR=checkpoints/graph_dddm_run1
+``
 ## 🔁 Resume Training from Checkpoint
 
 To resume training from a previously saved checkpoint, run:
