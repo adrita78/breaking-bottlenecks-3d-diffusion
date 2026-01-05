@@ -93,7 +93,7 @@ torchrun \
   --data_dir data/drugs \
   --split_path splits/drugs_split.npy \
   --dataset drugs \
-  --batch_size 64 \
+  --batch_size 128 \
   --num_workers 4 \
   --noise_schedule cosine \
   --diffusion_steps 1000 \
