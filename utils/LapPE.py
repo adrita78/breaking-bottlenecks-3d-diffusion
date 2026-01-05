@@ -113,7 +113,3 @@ class AddCustomLaplacianEigenPE(BaseTransform):
         data = add_node_attr(data, eig_vals, attr_name=self.attr_names["eigvals"])
 
         return data
-
-
-
-
