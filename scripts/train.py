@@ -94,6 +94,3 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
-
-
-
