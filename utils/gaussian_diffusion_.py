@@ -323,6 +323,7 @@ class VP_Diffusion:
         if device is None:
             device = next(model.parameters()).device
         assert isinstance(shape, (tuple, list))
+        batch = batch.to(device)
        
         num_graphs= (batch.ptr.shape[0]-1)
         if noise is None:
@@ -331,7 +332,7 @@ class VP_Diffusion:
             x_T = noise.to(device)
         batch.x = x_T    
         if condition is None:
-            x_bar = torch.zeros_like(batch.x, device=device)
+            x_bar = torch.zeros_like(num_graphs, 74, device=device)
         else:
             x_bar = condition.to(device)
 
@@ -350,4 +351,5 @@ class VP_Diffusion:
                
         return x_bar
         
+
 
