@@ -296,11 +296,10 @@ class VP_Diffusion:
         return terms, model_output
 
 
-    def p_sample(self, model, batch, timesteps, x_bar,model_kwargs=None):
-        
-        sample = batch.x - model(batch, timesteps, context=x_bar,**model_kwargs)
+    def p_sample(self, model, batch, t, x_bar,model_kwargs=None):
+        x_graph = global_mean_pool(batch.x, batch.batch)
+        sample = x_graph - model(batch, t, context=x_bar,**model_kwargs)
         return sample
-
 
     def p_sample_loop(
         self,
@@ -310,7 +309,7 @@ class VP_Diffusion:
         condition=None,
         model_kwargs=None,
         device=None,
-        sample_steps=1,
+        sample_steps=100,
         
     ):
         """
@@ -323,12 +322,20 @@ class VP_Diffusion:
         """
         if device is None:
             device = next(model.parameters()).device
+        assert isinstance(shape, (tuple, list))
        
         num_graphs= (batch.ptr.shape[0]-1)
-        batch.x = torch.randn_like(batch.x, dtype=torch.float).to(device) 
-        x_bar = torch.randn_like(batch.x, dtype=torch.float).to(device) 
+        if noise is None:
+            x_T = torch.randn_like(batch.x, device=device)
+        else:
+            x_T = noise.to(device)
+        batch.x = x_T    
+        if condition is None:
+            x_bar = torch.zeros_like(batch.x, device=device)
+        else:
+            x_bar = condition.to(device)
 
-        t = torch.randint(0, 1000, (num_graphs,)).float().to(device)
+        T = torch.full((num_graphs,),self.num_timesteps,device=device,dtype=torch.long)
 
         for i in range(sample_steps):
             with th.no_grad():
@@ -336,10 +343,10 @@ class VP_Diffusion:
                     model,
                     batch,
                     x_bar,
-                    t,
+                    T,
                     model_kwargs=model_kwargs,
                 )
                 x_bar = out
                
         return x_bar
-    
+        
