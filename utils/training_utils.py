@@ -462,9 +462,3 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
-
-
-
-
-
-
