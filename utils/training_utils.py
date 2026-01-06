@@ -39,6 +39,9 @@ class TrainLoop:
         batch_size,
         microbatch,
         lr,
+        adam_beta1,
+        adam_beta2,
+        warmup_steps,
         ema_rate,
         epochs,
         log_interval,
@@ -56,6 +59,9 @@ class TrainLoop:
         self.batch_size = batch_size
         self.microbatch = microbatch if microbatch > 0 else batch_size
         self.lr = lr
+        self.min_lr = min_lr
+        self.warmup_steps = warmup_steps
+        self.current_step = 0
 
         self.ema_rate = (
             [ema_rate]
@@ -456,6 +462,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
