@@ -331,7 +331,7 @@ class VP_Diffusion:
             x_T = noise.to(device)
         batch.x = x_T    
         if condition is None:
-            x_bar = torch.zeros_like(num_graphs, 74, device=device)
+            x_bar = torch.zeros(num_graphs, 74, device=device)
         else:
             x_bar = condition.to(device)
 
@@ -342,11 +342,12 @@ class VP_Diffusion:
                 out = self.p_sample(
                     model,
                     batch,
-                    x_bar,
                     T,
+                    x_bar,
                     model_kwargs=model_kwargs,
                 )
                 x_bar = out
                
         return x_bar
         
+
