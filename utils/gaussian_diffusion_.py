@@ -335,9 +335,9 @@ class VP_Diffusion:
         else:
             x_bar = condition.to(device)
 
-        T = torch.full((num_graphs,),self.num_timesteps,device=device,dtype=torch.long)
+        T = torch.full((num_graphs,), self.num_timesteps, device=device, dtype=torch.long)
 
-        for i in range(sample_steps):
+        for _ in range(sample_steps):
             with th.no_grad():
                 out = self.p_sample(
                     model,
@@ -350,3 +350,4 @@ class VP_Diffusion:
                
         return x_bar
         
+
