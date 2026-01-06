@@ -80,6 +80,7 @@ def create_argparser():
         save_interval=2,
         resume_checkpoint="",
         use_fp16=False,
+        use_bf16=True, 
         fp16_scale_growth=1e-3,
     )
 
@@ -93,4 +94,5 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
 
