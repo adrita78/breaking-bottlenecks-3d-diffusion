@@ -90,6 +90,7 @@ class TrainLoop:
         self.opt = AdamW(
             self.master_params,
             lr=self.lr,
+            betas=(args.adam_beta1, args.adam_beta2),
             weight_decay=self.weight_decay,
         )
 
@@ -443,6 +444,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
