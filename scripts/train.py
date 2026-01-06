@@ -42,24 +42,24 @@ def main():
 
     logger.log("training...")
     TrainLoop(
-        model=model,
-        diffusion=diffusion,
-        data=train_loader,
-        batch_size=args.batch_size,
-        microbatch=args.microbatch,
-        lr=args.lr,
-        epochs=args.epochs,
-        ema_rate=args.ema_rate,
-        log_interval=args.log_interval,
-        save_interval=args.save_interval,
-        resume_checkpoint=args.resume_checkpoint,
-        use_fp16=args.use_fp16,
-        fp16_scale_growth=args.fp16_scale_growth,
-        schedule_sampler=schedule_sampler,
-        weight_decay=args.weight_decay,
-    ).run_loop()
-
-
+      model=model,
+      diffusion=diffusion,
+      data=train_loader,
+      batch_size=args.batch_size,
+      microbatch=args.microbatch,
+      lr=args.lr,
+      adam_beta1=args.adam_beta1,
+      adam_beta2=args.adam_beta2,
+      warmup_steps=args.warmup_steps,
+      ema_rate=args.ema_rate,
+      epochs=args.epochs,
+      log_interval=args.log_interval,
+      save_interval=args.save_interval,
+      resume_checkpoint=args.resume_checkpoint,
+      use_fp16=args.use_fp16,
+      fp16_scale_growth=args.fp16_scale_growth,
+      schedule_sampler=schedule_sampler,
+      weight_decay=args.weight_decay,).run_loop()
 
 def create_argparser():
     defaults = dict(
@@ -94,5 +94,6 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
 
 
