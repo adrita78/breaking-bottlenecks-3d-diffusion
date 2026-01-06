@@ -10,6 +10,7 @@ import torch.distributed as dist
 
 from torch.nn.parallel.distributed import DistributedDataParallel as DDP
 from torch.optim import AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch_geometric.data import Batch
 
 from utils import dist_util, logger
@@ -462,3 +463,4 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
