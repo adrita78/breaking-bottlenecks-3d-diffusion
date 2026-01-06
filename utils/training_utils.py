@@ -26,6 +26,7 @@ from utils.fp16_util import (
 from utils.featurization import construct_loader
 from utils.nn import update_ema
 from utils.resample import create_named_schedule_sampler
+from torch.cuda.amp import autocast
 
 INITIAL_LOG_LOSS_SCALE = 20.0
 
@@ -75,6 +76,7 @@ class TrainLoop:
         self.resume_checkpoint = resume_checkpoint
 
         self.use_fp16 = use_fp16
+        #self.use_bf16 = use_bf16 
         self.fp16_scale_growth = fp16_scale_growth
         self.schedule_sampler = schedule_sampler or UniformSampler(diffusion)
         self.weight_decay = weight_decay
@@ -463,4 +465,5 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
