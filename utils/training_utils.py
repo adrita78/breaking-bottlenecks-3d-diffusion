@@ -94,6 +94,10 @@ class TrainLoop:
             weight_decay=self.weight_decay,
         )
 
+        self.scheduler = CosineAnnealingLR(
+            self.opt, T_max=self.epochs, eta_min=self.min_lr
+        )
+
         if self.resume_epoch:
             self._load_optimizer_state()
             self.ema_params = [
@@ -286,6 +290,14 @@ class TrainLoop:
                 (loss * loss_scale).backward()
             else:
                 loss.backward()
+     def _step_scheduler(self):
+        self.current_step += 1
+        if self.current_step < self.warmup_steps:
+            scale = self.current_step / self.warmup_steps
+            for pg in self.opt.param_groups:
+                pg["lr"] = scale * self.lr
+        else:
+            self.scheduler.step()            
 
     def optimize_fp16(self):
         if any(
@@ -444,6 +456,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
