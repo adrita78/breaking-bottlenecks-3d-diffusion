@@ -350,5 +350,3 @@ class VP_Diffusion:
                
         return batch
         
-
-
