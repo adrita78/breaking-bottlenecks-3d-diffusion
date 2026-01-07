@@ -346,7 +346,9 @@ class VP_Diffusion:
                     x_bar,
                     model_kwargs=model_kwargs,
                 )
+                x_bar = out
                 batch.x = x_bar[batch.batch]
                
         return batch
         
+
