@@ -119,3 +119,13 @@ torchrun \
   --split_path splits/drugs_split.npy \
   --resume_checkpoint checkpoints/model.pt
 ```
+## Sampling
+During training, model checkpoints are periodically saved as `.pt` files in the experiment’s logging directory.
+```bash
+python scripts/sampling.py \
+  --model_path path/to/ema_model.pt \
+  --num_samples 10000 \
+  --batch_size 16 \
+  --sample_steps 100
+```
+
