@@ -252,7 +252,7 @@ class VP_Diffusion:
                  corresponding losses.
         """
         if model_kwargs is None:
-        model_kwargs = {}
+            model_kwargs = {}
 
         if device is None:
             device = next(model.parameters()).device
@@ -351,4 +351,5 @@ class VP_Diffusion:
                
         return batch
         
+
 
