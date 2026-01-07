@@ -139,7 +139,7 @@ class GraphModel(nn.Module):
             ReLU(),
             Linear(self.channels // 2, self.channels // 4),
             ReLU(),
-            Linear(self.channels // 4, 1)
+            Linear(self.channels // 4, 74)
         )
 
     def forward(self, t, context, batch, device=None):
@@ -208,3 +208,4 @@ def timestep_embedding(timesteps, dim, max_period=10000):
       if dim % 2:
         embedding = th.cat([embedding, th.zeros_like(embedding[:, :1])], dim=-1)
       return embedding    
+
