@@ -38,79 +38,68 @@ def get_seed(smi, seed_confs=None, dataset='drugs'):
 
     return mol, data
 
+
 def embed_seeds(
     mol,
     data,
     n_confs,
     single_conf=False,
-    smi=None,
     embed_func=None,
-    seed_confs=None,
     pdb=None,
     mmff=False,
 ):
-    
-    # --------------------------------------------------
-    # 1. Embed conformers (RDKit only)
-    # --------------------------------------------------
-    embed_num_confs = n_confs if not single_conf else 1
+    """
+    Generate RDKit conformers and convert them into PyG Data objects.
+    """
+
+    embed_num_confs = 1 if single_conf else n_confs
 
     try:
         mol = embed_func(mol, embed_num_confs)
     except Exception as e:
-        print(e)
+        print("Embedding failed:", e)
         return [], None
 
     if mol.GetNumConformers() != embed_num_confs:
-        print(mol.GetNumConformers(), '!=', embed_num_confs)
+        print(
+            f"Expected {embed_num_confs} conformers, "
+            f"got {mol.GetNumConformers()}"
+        )
         return [], None
 
     if mmff:
         try_mmff(mol)
 
-    # --------------------------------------------------
-    # 2. Optional PDB logging (unchanged)
-    # --------------------------------------------------
     if pdb:
         pdb = PDBFile(mol)
 
     conformers = []
 
-    # --------------------------------------------------
-    # 3. Generate conformer Data objects
-    # --------------------------------------------------
-    for i in range(n_confs):
+    for i in range(embed_num_confs):
         data_conf = copy.deepcopy(data)
 
-        # Always use the i-th conformer directly
-        seed_mol = copy.deepcopy(mol)
-        if seed_mol.GetNumConformers() > 1:
-            for j in range(seed_mol.GetNumConformers()):
-                if j != i:
-                    seed_mol.RemoveConformer(j)
+        conf = mol.GetConformer(i)
+        positions = conf.GetPositions()
 
-        data_conf.pos = torch.from_numpy(
-            seed_mol.GetConformers()[0].GetPositions()
-        ).float()
+        data_conf.pos = torch.from_numpy(positions).float()
 
-        data_conf.seed_mol = copy.deepcopy(seed_mol)
+        # Optional: keep reference to the RDKit conformer
+        data_conf.seed_mol = copy.deepcopy(mol)
+        data_conf.seed_mol.RemoveAllConformers()
+        data_conf.seed_mol.AddConformer(conf, assignId=True)
 
         if pdb:
             pdb.add(data_conf.pos, part=i, order=0)
-            pdb.add(torch.zeros_like(data_conf.pos), part=i, order=-1)
 
         conformers.append(data_conf)
 
-    # --------------------------------------------------
-    # 4. Cleanup RDKit molecule (keep first conformer)
-    # --------------------------------------------------
+
     if mol.GetNumConformers() > 1:
-        for j in range(1, mol.GetNumConformers()):
-            mol.RemoveConformer(j)
+        mol.RemoveAllConformers()
+        mol.AddConformer(conformers[0].seed_mol.GetConformer(0), assignId=True)
 
     return conformers, pdb
-
-
+    
 def pyg_to_mol(
     mol,
     data,
@@ -180,3 +169,4 @@ class InferenceDataset(Dataset):
 
     def get(self, idx):
         return self.data[idx]
+
