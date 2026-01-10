@@ -48,6 +48,7 @@ def main():
       batch_size=args.batch_size,
       microbatch=args.microbatch,
       lr=args.lr,
+      min_lr = args.min_lr,
       adam_beta1=args.adam_beta1,
       adam_beta2=args.adam_beta2,
       warmup_steps=args.warmup_steps,
@@ -94,3 +95,4 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
