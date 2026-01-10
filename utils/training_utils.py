@@ -348,6 +348,17 @@ class TrainLoop:
 
             w = 1 / (epoch + 1)
             loss = (w * loss_guide + (1 - w) * loss_iter).mean()
+            if dist.get_rank() == 0:
+                wandb.log(
+                {
+                  "train/loss": loss.item(),
+                  "train/loss_guide": loss_guide.mean().item(),
+                  "train/loss_iter": loss_iter.mean().item(),
+                  "train/epoch": epoch,
+                   "train/w": w,
+                   "train/t_mean": t.float().mean().item(),
+                 },
+                step=self.step,)
 
             log_loss_dict(
                 self.diffusion,
@@ -527,6 +538,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
