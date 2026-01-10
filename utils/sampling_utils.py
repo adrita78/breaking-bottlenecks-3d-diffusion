@@ -159,6 +159,69 @@ def pyg_to_mol(
 
     return deepcopy(mol)
 
+
+def sample(
+    conformers,
+    model,
+    diffusion,
+    steps=100,
+    batch_size=32,
+    device=None,
+):
+    """
+    Node-feature-only Gaussian diffusion sampler.
+
+    - conformers: list[torch_geometric.data.Data]
+    - model: trained denoising model
+    - diffusion: VP_Diffusion instance
+    - steps: reverse diffusion steps
+    - batch_size: batch size for inference
+    """
+
+    if device is None:
+        device = next(model.parameters()).device
+
+    conf_dataset = InferenceDataset(conformers)
+    loader = DataLoader(conf_dataset, batch_size=batch_size, shuffle=False)
+
+    model.eval()
+
+    sampled_conformers = []
+
+    for data in loader:
+        data = data.to(device)
+
+        # --------------------------------------------------
+        # 1. Initialize x_T ~ N(0, I)
+        # --------------------------------------------------
+        data.x = torch.randn_like(data.x, device=device)
+        num_graphs = data.ptr.shape[0] - 1
+
+        # Optional conditioning (use zeros if none)
+        x_bar = torch.zeros(num_graphs, 74, device=device)
+
+        T = torch.full(
+            (num_graphs,),
+            diffusion.num_timesteps - 1,
+            device=device,
+            dtype=torch.long,
+        )
+
+        with torch.no_grad():
+            for _ in range(steps):
+                x_bar = diffusion.p_sample(
+                    model=model,
+                    batch=data,
+                    t=T,
+                    x_bar=x_bar,
+                )
+                data.x = x_bar
+
+        sampled_conformers.extend(data.to_data_list())
+
+    return sampled_conformers
+
+
 class InferenceDataset(Dataset):
     def __init__(self, data_list):
         super().__init__()
@@ -169,4 +232,5 @@ class InferenceDataset(Dataset):
 
     def get(self, idx):
         return self.data[idx]
+
 
