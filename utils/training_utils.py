@@ -3,6 +3,7 @@ import functools
 import os
 
 import torch
+import wandb
 import blobfile as bf
 import numpy as np
 import torch as th
@@ -28,8 +29,14 @@ from utils.nn import update_ema
 from utils.resample import create_named_schedule_sampler
 from torch.cuda.amp import autocast
 
-INITIAL_LOG_LOSS_SCALE = 20.0
-
+def init_wandb(args):
+    if dist.get_rank() == 0:  # IMPORTANT: only rank 0 logs
+        wandb.init(
+            project="graph-diffusion",
+            name=args.run_name if hasattr(args, "run_name") else None,
+            config=vars(args),
+        )
+        
 
 class TrainLoop:
     def __init__(
@@ -41,6 +48,7 @@ class TrainLoop:
         batch_size,
         microbatch,
         lr,
+        min_lr,  
         adam_beta1,
         adam_beta2,
         warmup_steps,
@@ -54,59 +62,109 @@ class TrainLoop:
         schedule_sampler=None,
         weight_decay=0.0,
     ):
+
+        # --------------------------------------------------
+        # Core components
+        # --------------------------------------------------
         self.model = model
         self.diffusion = diffusion
         self.train_loader = data
 
+        # --------------------------------------------------
+        # Device
+        # --------------------------------------------------
+        self.device = dist_util.dev()
+        self.model.to(self.device)
+        # --------------------------------------------------
+        # Batch / optimization settings
+        # --------------------------------------------------
         self.batch_size = batch_size
         self.microbatch = microbatch if microbatch > 0 else batch_size
         self.lr = lr
         self.min_lr = min_lr
         self.warmup_steps = warmup_steps
         self.current_step = 0
+        self.global_step = 0
+
+        
+        # --------------------------------------------------
+        # EMA
+        # --------------------------------------------------
 
         self.ema_rate = (
             [ema_rate]
             if isinstance(ema_rate, float)
             else [float(x) for x in ema_rate.split(",")]
         )
-
+        # --------------------------------------------------
+        # Logging / checkpointing
+        # --------------------------------------------------
         self.log_interval = log_interval
         self.save_interval = save_interval
         self.resume_checkpoint = resume_checkpoint
-
-        self.use_fp16 = use_fp16
-        #self.use_bf16 = use_bf16 
-        self.fp16_scale_growth = fp16_scale_growth
-        self.schedule_sampler = schedule_sampler or UniformSampler(diffusion)
-        self.weight_decay = weight_decay
-
         self.epochs = epochs
         self.resume_epoch = 0
+
+        # --------------------------------------------------
+        # Precision
+        # --------------------------------------------------
+        self.use_fp16 = use_fp16
+        self.fp16_scale_growth = fp16_scale_growth
+        self.lg_loss_scale = 20.0  # INITIAL_LOG_LOSS_SCALE
+        #self.use_bf16 = use_bf16 
+
+        # AMP scaler (only if fp16)
+        self.scaler = None
+        if self.use_fp16:
+            self.scaler = th.cuda.amp.GradScaler(
+                growth_factor=self.fp16_scale_growth
+            )
+
+        # --------------------------------------------------
+        # Sampler
+        # --------------------------------------------------
+        self.schedule_sampler = schedule_sampler or UniformSampler(diffusion)
+        self.weight_decay = weight_decay
+        self.adam_beta1 = adam_beta1
+        self.adam_beta2 = adam_beta2
+
+        # --------------------------------------------------
+        # Distributed info
+        # --------------------------------------------------
+        self.sync_cuda = th.cuda.is_available()
         self.global_batch = self.batch_size * dist.get_world_size()
 
+        # --------------------------------------------------
+        # Parameters
+        # --------------------------------------------------
         self.model_params = list(self.model.parameters())
         self.master_params = self.model_params
 
-        self.lg_loss_scale = INITIAL_LOG_LOSS_SCALE
-        self.sync_cuda = th.cuda.is_available()
-
+        # --------------------------------------------------
+        # Load checkpoint + sync
+        # --------------------------------------------------
         self._load_and_sync_parameters()
 
-        if self.use_fp16:
-            self._setup_fp16()
-
+        # --------------------------------------------------
+        # Optimizer
+        # --------------------------------------------------
         self.opt = AdamW(
             self.master_params,
             lr=self.lr,
-            betas=(args.adam_beta1, args.adam_beta2),
+            betas=(self.adam_beta1, self.adam_beta2),
             weight_decay=self.weight_decay,
         )
-
+        
+        # --------------------------------------------------
+        # Scheduler (epoch-based cosine)
+        # --------------------------------------------------
         self.scheduler = CosineAnnealingLR(
             self.opt, T_max=self.epochs, eta_min=self.min_lr
         )
 
+        # --------------------------------------------------
+        # EMA params
+        # --------------------------------------------------
         if self.resume_epoch:
             self._load_optimizer_state()
             self.ema_params = [
@@ -118,6 +176,9 @@ class TrainLoop:
                 for _ in range(len(self.ema_rate))
             ]
 
+        # --------------------------------------------------
+        # DDP
+        # --------------------------------------------------
         if th.cuda.is_available():
             self.use_ddp = True
             self.ddp_model = DDP(
@@ -465,5 +526,6 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
