@@ -85,6 +85,7 @@ class TrainLoop:
         self.warmup_steps = warmup_steps
         self.current_step = 0
         self.global_step = 0
+        self.step = 0
 
         
         # --------------------------------------------------
@@ -292,6 +293,8 @@ class TrainLoop:
             self.optimize_fp16()
         else:
             self.optimize_normal()
+         
+        self.step += 1    
 
     def forward_backward(self, batch, epoch):
         zero_grad(self.model_params)
@@ -538,6 +541,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
