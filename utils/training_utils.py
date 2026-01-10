@@ -360,6 +360,7 @@ class TrainLoop:
                 (loss * loss_scale).backward()
             else:
                 loss.backward()
+                
      def _step_scheduler(self):
         self.current_step += 1
         if self.current_step < self.warmup_steps:
@@ -526,6 +527,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
