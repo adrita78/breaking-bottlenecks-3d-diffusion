@@ -125,8 +125,7 @@ def sample_confs(raw_smi, n_confs, smi):
 
 
 for smi_idx, (raw_smi, n_confs, smi) in test_data:
-
-    # Decide number of conformers to sample
+  
     if isinstance(args.confs_per_mol, int):
         mols = sample_confs(raw_smi, args.confs_per_mol, smi)
     else:
@@ -172,9 +171,3 @@ if args.out:
         pickle.dump(conformer_dict, f)
 
 print("Generated conformers for", len(conformer_dict), "molecules")
-
-
-    
-    
-
-
