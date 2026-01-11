@@ -119,6 +119,7 @@ torchrun \
   --split_path splits/drugs_split.npy \
   --resume_checkpoint checkpoints/model.pt
 ```
+(Optional)
 To train the model, begin by selecting appropriate hyperparameters. We group these hyperparameters into three components: model architecture, diffusion process, and training flags. The following defaults are chosen to provide a stable and effective baseline for training.
 ```bash
 MODEL_FLAGS="--model_type jamba --channels 512 --depth 6 --heads 4 --headdim 16 --num_layers 8 \
