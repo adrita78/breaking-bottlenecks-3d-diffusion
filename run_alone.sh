@@ -3,7 +3,7 @@
 MASTER=$1
 
 MODEL_FLAGS="--image_size 32 --num_channels 128 --num_res_blocks 3 --dropout 0.3"
-DIFFUSION_FLAGS="--diffusion_steps 4000 --noise_schedule linear"
+DIFFUSION_FLAGS="--diffusion_steps 4000 --noise_schedule cosine --beta_start 1e-5 --beta_end 2e-2 --loss_type "ph" --c 0.000069"
 TRAIN_FLAGS="--lr 1e-4 --batch_size 128"
 
 
