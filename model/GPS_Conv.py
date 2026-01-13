@@ -29,8 +29,8 @@ from torch_geometric.typing import Adj
 from torch_geometric.utils import to_dense_batch
 from mamba_ssm import Mamba
 from mamba_ssm import Mamba2
-from hydra import Hydra
-from Jamba import Jamba
+from model.hydra import Hydra
+from model.Jamba import Jamba
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
@@ -195,5 +195,6 @@ class GPSConv(nn.Module):
     def __repr__(self):
 
         return f'{self.__class__.__name__}({self.channels}, conv={self.conv}, heads={self.heads})'
+
 
 
