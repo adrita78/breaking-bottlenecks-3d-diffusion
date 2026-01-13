@@ -8,7 +8,7 @@ import torch as th
 import enum
 from abc import ABC, abstractmethod
 import torch.distributed as dist
-from loss_functions import ph_loss, mean_flat
+from utils.loss_functions import ph_loss, mean_flat
 
 def betas_for_alpha_bar(num_diffusion_timesteps, alpha_bar, max_beta=0.999):
     """
@@ -351,5 +351,6 @@ class VP_Diffusion:
                
         return batch
         
+
 
 
