@@ -2,7 +2,7 @@ from torch import Tensor, nn
 from zeta import MambaBlock, MultiQueryAttention
 from zeta.nn import FeedForward
 from zeta.nn.modules.simple_rmsnorm import SimpleRMSNorm
-from moe import MoE
+from utils.moe import MoE
 
 
 # -------------------------------------------------
@@ -133,3 +133,4 @@ class Jamba(nn.Module):
         for layer in self.layers:
             x = layer(x)
         return self.norm(x)
+
