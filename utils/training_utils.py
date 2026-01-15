@@ -61,6 +61,7 @@ class TrainLoop:
         fp16_scale_growth=1e-3,
         schedule_sampler=None,
         weight_decay=0.0,
+        adam_eps=1e-8,      
     ):
 
         # --------------------------------------------------
@@ -83,9 +84,11 @@ class TrainLoop:
         self.lr = lr
         self.min_lr = min_lr
         self.warmup_steps = warmup_steps
+        self.adam_eps = adam_eps
         self.current_step = 0
         self.global_step = 0
         self.step = 0
+        
 
         
         # --------------------------------------------------
@@ -154,7 +157,7 @@ class TrainLoop:
             lr=self.lr,
             betas=(self.adam_beta1, self.adam_beta2),
             weight_decay=self.weight_decay,
-            eps=1e-20,
+            eps=self.adam_eps, 
         )
         
         # --------------------------------------------------
@@ -542,6 +545,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
