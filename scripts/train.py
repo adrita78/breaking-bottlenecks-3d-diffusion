@@ -80,6 +80,7 @@ def create_argparser():
         ema_rate="0.9999",
         log_interval=10,
         save_interval=2,
+        adam_eps = 1e-8,
         resume_checkpoint="",
         use_fp16=False,
         use_bf16=True, 
@@ -96,6 +97,7 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
 
 
 
