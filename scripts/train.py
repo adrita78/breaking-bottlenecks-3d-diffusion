@@ -59,7 +59,7 @@ def main():
       resume_checkpoint=args.resume_checkpoint,
       use_fp16=args.use_fp16,
       fp16_scale_growth=args.fp16_scale_growth,
-      adam_eps = 1e-8,
+      adam_eps = args.adam_eps,
       schedule_sampler=schedule_sampler,
       weight_decay=args.weight_decay,).run_loop()
 
@@ -96,5 +96,6 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
 
 
