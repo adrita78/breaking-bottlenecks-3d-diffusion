@@ -154,6 +154,7 @@ class TrainLoop:
             lr=self.lr,
             betas=(self.adam_beta1, self.adam_beta2),
             weight_decay=self.weight_decay,
+            eps=1e-20,
         )
         
         # --------------------------------------------------
@@ -541,6 +542,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
