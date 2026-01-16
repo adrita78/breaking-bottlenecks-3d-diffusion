@@ -57,11 +57,11 @@ class TrainLoop:
         log_interval,
         save_interval,
         resume_checkpoint,
-        use_fp16=False,
+        use_fp16=True,
         fp16_scale_growth=1e-3,
         schedule_sampler=None,
-        weight_decay=0.0,
-        adam_eps=1e-8,      
+        weight_decay=0.1,
+        adam_eps=1e-6,      
     ):
 
         # --------------------------------------------------
@@ -545,6 +545,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
