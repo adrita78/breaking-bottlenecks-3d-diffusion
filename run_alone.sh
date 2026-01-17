@@ -23,5 +23,5 @@ export DDDM_LOGDIR=./checkpoints
 torchrun \
 --standalone \
 --nproc_per_node=8 \
-./scripts/train.py --data_dir datasets/cifar_train $MODEL_FLAGS $DIFFUSION_FLAGS $TRAIN_FLAGS
+./scripts/train.py --data_dir data/drugs \ $MODEL_FLAGS $DIFFUSION_FLAGS $TRAIN_FLAGS
 
