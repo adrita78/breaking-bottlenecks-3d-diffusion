@@ -11,6 +11,7 @@ from utils.script_util import (
     add_dict_to_argparser,
 )
 from utils.training_utils import TrainLoop
+import wandb
 
 def main():
     args = create_argparser().parse_args()
@@ -98,6 +99,7 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
 
 
 
