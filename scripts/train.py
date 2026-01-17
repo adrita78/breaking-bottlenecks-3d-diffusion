@@ -13,6 +13,14 @@ from utils.script_util import (
 from utils.training_utils import TrainLoop
 import wandb
 
+def init_wandb(args):
+    if not dist.is_initialized() or dist.get_rank() == 0:
+        wandb.init(
+            project="graph-diffusion",
+            name=getattr(args, "run_name", None),
+            config=vars(args),
+        )
+
 def main():
     args = create_argparser().parse_args()
 
@@ -99,6 +107,7 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
 
 
 
