@@ -16,6 +16,7 @@ def main():
     args = create_argparser().parse_args()
 
     dist_util.setup_dist()
+    init_wandb(args)
     logger.configure()
 
     logger.log("creating model and diffusion...")
@@ -97,6 +98,7 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
 
 
 
