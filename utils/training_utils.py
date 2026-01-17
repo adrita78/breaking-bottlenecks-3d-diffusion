@@ -400,6 +400,7 @@ class TrainLoop:
         )
 
         self.opt.step()
+        #self._step_scheduler() 
 
         for rate, params in zip(
             self.ema_rate,
@@ -536,6 +537,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
