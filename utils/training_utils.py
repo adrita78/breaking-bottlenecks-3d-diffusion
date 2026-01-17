@@ -29,15 +29,6 @@ from utils.nn import update_ema
 from utils.resample import create_named_schedule_sampler
 from torch.cuda.amp import autocast
 
-def init_wandb(args):
-    if dist.get_rank() == 0:  # IMPORTANT: only rank 0 logs
-        wandb.init(
-            project="graph-diffusion",
-            name=args.run_name if hasattr(args, "run_name") else None,
-            config=vars(args),
-        )
-        
-
 class TrainLoop:
     def __init__(
         self,
@@ -545,6 +536,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
