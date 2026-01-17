@@ -18,6 +18,10 @@ TRAIN_FLAGS="--schedule_sampler uniform --lr 3e-4 --min_lr 3e-5 \
 
 
 export DDDM_LOGDIR=./checkpoints
-$MODEL_FLAGS $DIFFUSION_FLAGS $TRAIN_FLAGS
 
+
+torchrun \
+--standalone \
+--nproc_per_node=8 \
+./scripts/train.py --data_dir datasets/cifar_train $MODEL_FLAGS $DIFFUSION_FLAGS $TRAIN_FLAGS
 
