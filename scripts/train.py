@@ -95,6 +95,7 @@ def create_argparser():
         use_fp16=False,
         use_bf16=True, 
         fp16_scale_growth=1e-3,
+        run_name="jamba-dddm",
     )
 
     defaults.update(data_defaults())
@@ -107,6 +108,7 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
 
 
 
