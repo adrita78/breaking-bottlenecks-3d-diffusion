@@ -15,13 +15,20 @@ TRAIN_FLAGS="--schedule_sampler uniform --lr 3e-4 --min_lr 3e-5 \
 --resume_checkpoint '' --use_fp16 True --use_bf16 False \
 --fp16_scale_growth 1e-3"
 
-
-
 export DDDM_LOGDIR=./checkpoints
 
 
 torchrun \
---standalone \
---nproc_per_node=8 \
-./scripts/train.py --data_dir data/drugs \ $MODEL_FLAGS $DIFFUSION_FLAGS $TRAIN_FLAGS
+  --standalone \
+  --nproc_per_node=4 \
+  ./scripts/train.py \
+  --data_dir data/drugs \
+  --split_path "/home/peiranj/bbb/split_drugs.npy" \
+  --cache "/home/peiranj/bbb/cache" \
+  --limit_train_mols 55000 \
+  --dataset drugs \
+  --num_workers 4 \
+  $MODEL_FLAGS \
+  $DIFFUSION_FLAGS \
+  $TRAIN_FLAGS
 
