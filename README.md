@@ -88,7 +88,7 @@ You can configure the hyperparameters and launch a training run using environmen
 ```bash
 torchrun \
 --standalone \
---nproc_per_node=8 \
+--nproc_per_node=4 \
 ./scripts/train.py \
   --data_dir data/drugs \
   --split_path splits/drugs_split.npy \
@@ -113,7 +113,7 @@ To resume training from a previously saved checkpoint, run:
 ```bash
 torchrun \
 --standalone \
---nproc_per_node=8 \
+--nproc_per_node=4 \
 ./scripts/train.py \
   --data_dir data/drugs \
   --split_path splits/drugs_split.npy \
