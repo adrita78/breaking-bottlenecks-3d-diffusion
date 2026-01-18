@@ -134,7 +134,7 @@ TRAIN_FLAGS="--schedule_sampler uniform --lr 3e-4 --min_lr 3e-5 \
 --epochs 500 --batch_size 128 --microbatch 32 \
 --ema_rate 0.9999 --log_interval 10 --save_interval 2 \
 --resume_checkpoint '' --use_fp16 True --use_bf16 False \
---fp16_scale_growth 1e-3\
+--fp16_scale_growth 1e-3 \
 --run_name graph-dddm-run1"
 ```
 ## Sampling
