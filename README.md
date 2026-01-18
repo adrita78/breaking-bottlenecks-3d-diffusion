@@ -135,7 +135,7 @@ TRAIN_FLAGS="--schedule_sampler uniform --lr 3e-4 --min_lr 3e-5 \
 --ema_rate 0.9999 --log_interval 10 --save_interval 2 \
 --resume_checkpoint '' --use_fp16 True --use_bf16 False \
 --fp16_scale_growth 1e-3\
---run_name jamba-dddm-2gpu"
+--run_name graph-dddm-run1"
 ```
 ## Sampling
 During training, model checkpoints are periodically saved as `.pt` files in the experiment’s logging directory.
