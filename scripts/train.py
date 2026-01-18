@@ -13,19 +13,33 @@ from utils.script_util import (
 from utils.training_utils import TrainLoop
 import wandb
 
+# --------------------------------------------------
+# WandB initialization (DDP-safe)
+# --------------------------------------------------
 def init_wandb(args):
     if not dist.is_initialized() or dist.get_rank() == 0:
         wandb.init(
             project="graph-diffusion",
             name=getattr(args, "run_name", None),
+            tags=[
+                args.model_type,
+                args.dataset,
+                f"{dist.get_world_size()}gpu",
+            ],
             config=vars(args),
         )
+
 
 def main():
     args = create_argparser().parse_args()
 
+    # Distributed setup
     dist_util.setup_dist()
+
+    # WandB (only rank 0)
     init_wandb(args)
+
+    # Logger
     logger.configure()
 
     logger.log("creating model and diffusion...")
@@ -52,37 +66,40 @@ def main():
 
     logger.log("training...")
     TrainLoop(
-      model=model,
-      diffusion=diffusion,
-      data=train_loader,
-      batch_size=args.batch_size,
-      microbatch=args.microbatch,
-      lr=args.lr,
-      min_lr = args.min_lr,
-      adam_beta1=args.adam_beta1,
-      adam_beta2=args.adam_beta2,
-      warmup_steps=args.warmup_steps,
-      ema_rate=args.ema_rate,
-      epochs=args.epochs,
-      log_interval=args.log_interval,
-      save_interval=args.save_interval,
-      resume_checkpoint=args.resume_checkpoint,
-      use_fp16=args.use_fp16,
-      fp16_scale_growth=args.fp16_scale_growth,
-      adam_eps = args.adam_eps,
-      schedule_sampler=schedule_sampler,
-      weight_decay=args.weight_decay,).run_loop()
+        model=model,
+        diffusion=diffusion,
+        data=train_loader,
+        batch_size=args.batch_size,
+        microbatch=args.microbatch,
+        lr=args.lr,
+        min_lr=args.min_lr,
+        adam_beta1=args.adam_beta1,
+        adam_beta2=args.adam_beta2,
+        adam_eps=args.adam_eps,
+        warmup_steps=args.warmup_steps,
+        ema_rate=args.ema_rate,
+        epochs=args.epochs,
+        log_interval=args.log_interval,
+        save_interval=args.save_interval,
+        resume_checkpoint=args.resume_checkpoint,
+        use_fp16=args.use_fp16,
+        fp16_scale_growth=args.fp16_scale_growth,
+        schedule_sampler=schedule_sampler,
+        weight_decay=args.weight_decay,
+    ).run_loop()
+
 
 def create_argparser():
     defaults = dict(
-        # training
+        # Training
         schedule_sampler="uniform",
-        lr=3e-4,  
-        min_lr=3e-5,  
+        lr=3e-4,
+        min_lr=3e-5,
         adam_beta1=0.9,
         adam_beta2=0.95,
+        adam_eps=1e-8,
         weight_decay=0.1,
-        lr_schedule="cosine", 
+        lr_schedule="cosine",
         warmup_steps=1000,
         epochs=1000,
         batch_size=128,
@@ -90,11 +107,12 @@ def create_argparser():
         ema_rate="0.9999",
         log_interval=10,
         save_interval=2,
-        adam_eps = 1e-8,
         resume_checkpoint="",
         use_fp16=False,
-        use_bf16=True, 
+        use_bf16=True,
         fp16_scale_growth=1e-3,
+
+        # WandB
         run_name="jamba-dddm",
     )
 
@@ -108,7 +126,6 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
-
 
 
 
