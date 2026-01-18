@@ -23,8 +23,8 @@ torchrun \
   --nproc_per_node=4 \
   ./scripts/train.py \
   --data_dir data/drugs \
-  --split_path "/home/peiranj/bbb/split_drugs.npy" \
-  --cache "/home/peiranj/bbb/cache" \
+  --split_path splits/drugs_split.npy \
+  --cache cache/.train \
   --limit_train_mols 55000 \
   --dataset drugs \
   --num_workers 4 \
