@@ -15,7 +15,7 @@ TRAIN_FLAGS="--schedule_sampler uniform --lr 3e-4 --min_lr 3e-5 \
 --resume_checkpoint '' --use_fp16 True --use_bf16 False \
 --fp16_scale_growth 1e-3"
 
-export DDDM_LOGDIR=./checkpoints
+ export DIFFUSION_BLOB_LOGDIR=checkpoints/graph_dddm_run1
 
 
 torchrun \
