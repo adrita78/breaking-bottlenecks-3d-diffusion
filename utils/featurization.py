@@ -212,7 +212,6 @@ class ConformerDataset(Dataset):
         return data
 
 
-
 def construct_loader(
     data_dir,
     split_path,
@@ -223,24 +222,25 @@ def construct_loader(
     limit_train_mols=None,
     modes=("train", "val"),
 ):
+  
+    if limit_train_mols is not None:
+        limit_train_mols = max(1, int(limit_train_mols))
+
     if isinstance(modes, str):
         modes = [modes]
 
     loaders = []
 
-    # Only add transform if cache does not already exist
-    if not os.path.exists(cache):
-        transform = AddCustomLaplacianEigenPE(
-            k=10,
-            is_undirected=True,
-            attr_names={
-                "eigvecs": "lap_eigvecs",
-                "eigvals": "lap_eigvals",
-            },
-        )
-    else:
-        transform = None  # PE already cached
+    transform = AddCustomLaplacianEigenPE(
+        k=10,
+        is_undirected=True,
+        attr_names={
+            "eigvecs": "lap_eigvecs",
+            "eigvals": "lap_eigvals",
+        },
+    )
 
+    # Select types based on dataset
     types = qm9_types if dataset == "qm9" else drugs_types
 
     for mode in modes:
@@ -256,15 +256,16 @@ def construct_loader(
             cache=cache,
         )
 
+        # Create DataLoader
         loader = DataLoader(
             dataset=dataset_obj,
             batch_size=batch_size,
             shuffle=(mode != "test"),
             drop_last=False,
         )
-        loaders.append(loader)
 
+        loaders.append(loader)
+      
     return loaders[0] if len(loaders) == 1 else loaders
-    
-    
+
 
