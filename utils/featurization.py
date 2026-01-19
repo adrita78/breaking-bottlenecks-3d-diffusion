@@ -33,6 +33,7 @@ import math
 from functools import cache
 from featurize_mol import featurize_mol
 from LapPE import AddCustomLaplacianEigenPE
+import torch.distributed as dist
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
@@ -294,6 +295,7 @@ def construct_loader(
         loaders.append(loader)
       
     return loaders[0] if len(loaders) == 1 else loaders
+
 
 
 
