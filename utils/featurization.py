@@ -51,29 +51,56 @@ class ConformerDataset(Dataset):
         self.dataset = dataset
         self.max_confs = max_confs
 
-        if cache: cache+= "." + mode
-        self.cache = cache
-        if cache and os.path.exists(cache):
-          print('Reusing preprocessing from cache', cache)
-          with open(cache, "rb") as f:
-                self.datapoints = pickle.load(f)
-        else:
-          print("Preprocessing the dataset...")
-          self.datapoints = self.preprocess_datapoints(root, split_path, mode, num_workers, limit_molecules)
-          if cache:
-            print('Saving preprocessing to cache', cache)
-            with open(cache, "wb") as f:
-                pickle.dump(self.datapoints, f)
+        rank = get_rank()
 
-        file_path = os.path.join(self.root, 'datapoints.pickle')  # Changed for clarity
-        #print(f"Saving preprocessed datapoints to {file_path}...")
-        with open(file_path, "wb") as f:
-            pickle.dump(self.datapoints, f)
+        # ---- cache per split ----
+        if cache:
+            cache = f"{cache}.{mode}"
+        self.cache = cache
+
+        # ---------- LOAD OR BUILD CACHE ----------
+        if cache and os.path.exists(cache):
+            if is_rank0():
+                print(f"[RANK 0] Loading cache: {cache}", flush=True)
+            with open(cache, "rb") as f:
+                self.datapoints = pickle.load(f)
+
+        else:
+            if is_rank0():
+                print("[RANK 0] Preprocessing dataset...", flush=True)
+                self.datapoints = self.preprocess_datapoints(
+                    root,
+                    split_path,
+                    mode,
+                    num_workers,
+                    limit_molecules,
+                )
+                if cache:
+                    print(f"[RANK 0] Writing cache → {cache}", flush=True)
+                    with open(cache, "wb") as f:
+                        pickle.dump(self.datapoints, f)
+            else:
+                self.datapoints = None
+
+            # ---- synchronize all ranks ----
+            if is_dist():
+                dist.barrier()
+
+            # ---- non-rank0 loads cache ----
+            if not is_rank0():
+                with open(cache, "rb") as f:
+                    self.datapoints = pickle.load(f)
 
         if limit_molecules:
             self.datapoints = self.datapoints[:limit_molecules]
+
         if not self.datapoints:
-            raise ValueError("No valid datapoints found. Check the dataset structure and preprocessing logic.")
+            raise RuntimeError("Dataset is empty after preprocessing.")
+
+        print(
+            f"[RANK {rank}] Dataset ready with {len(self.datapoints)} molecules",
+            flush=True,
+        )
 
     def preprocess_datapoints(self, root, split_path, mode, num_workers, limit_molecules):
         #print("Loading the split file...")
@@ -267,5 +294,6 @@ def construct_loader(
         loaders.append(loader)
       
     return loaders[0] if len(loaders) == 1 else loaders
+
 
 
