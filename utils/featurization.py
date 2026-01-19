@@ -12,7 +12,7 @@ import random
 import argparse
 import torch
 import torch.nn.functional as F
-#from torch_scatter import scatter
+from torch_scatter import scatter
 from torch_geometric.data import Dataset, Data
 from torch_geometric.loader import DataLoader
 import torch_geometric.transforms as T
@@ -295,6 +295,7 @@ def construct_loader(
         loaders.append(loader)
       
     return loaders[0] if len(loaders) == 1 else loaders
+
 
 
 
