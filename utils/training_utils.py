@@ -111,9 +111,7 @@ class TrainLoop:
         # AMP scaler (only if fp16)
         self.scaler = None
         if self.use_fp16:
-            self.scaler = th.cuda.amp.GradScaler(
-                growth_factor=self.fp16_scale_growth
-            )
+             self.scaler = th.cuda.amp.GradScaler(init_scale=2.**16, growth_factor=2.0, backoff_factor=0.5, growth_interval=2000, enabled=True)
 
         # --------------------------------------------------
         # Sampler
@@ -537,6 +535,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
