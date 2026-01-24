@@ -10,11 +10,11 @@ def ph_loss(input,target,c):
 
 
 #def mean_flat(tensor, batch):
-    sum_per_graph = scatter(tensor, batch, dim=0, reduce="sum")
-    count_per_graph = scatter(
-        torch.ones(batch.size(0), 1, dtype=tensor.dtype, device=tensor.device),
-        batch, dim=0, reduce="sum"
-    )
+    #sum_per_graph = scatter(tensor, batch, dim=0, reduce="sum")
+    #count_per_graph = scatter(
+        #torch.ones(batch.size(0), 1, dtype=tensor.dtype, device=tensor.device),
+        #batch, dim=0, reduce="sum"
+    #)
     #return sum_per_graph / count_per_graph
 
 def mse_graph(input, target):
@@ -24,4 +24,5 @@ def mse_graph(input, target):
     """
     assert input.shape == target.shape, "Input and target must have the same shape"
     return ((input - target) ** 2).sum(dim=1).mean()
+
 
