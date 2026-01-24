@@ -221,8 +221,8 @@ class VP_Diffusion:
         model_output = x_graph - model_output
 
         if self.loss_type == LossType.MSE:
-            terms["guide"] = mean_flat((model_output - x_graph) ** 2)
-            terms["iter"] = mean_flat((model_output - condition) ** 2)
+             terms["guide"] = mse_graph(model_output, x_graph)
+             terms["iter"]  = mse_graph(model_output, condition)
 
         # Optional buffer update
         # model.module.update_xbar(model_output, index)
@@ -292,6 +292,7 @@ class VP_Diffusion:
                
         return batch
         
+
 
 
 
