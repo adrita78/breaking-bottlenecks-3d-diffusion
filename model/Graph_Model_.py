@@ -31,6 +31,7 @@ from torch_geometric.graphgym.config import cfg
 set_cfg_posenc(cfg)
 from torch_geometric.data import Batch
 import numpy as np
+from utils.fp16_util import convert_module_to_f16, convert_module_to_f32
 
 
 @th.no_grad()
@@ -187,6 +188,19 @@ class GraphModel(nn.Module):
         assert graph_repr.shape[0] == graph_ids.shape[0], \
         f"Mismatch between graph representations and graph IDs"
         self.x_bar[graph_ids] = graph_repr.detach()
+
+        
+    def convert_to_fp16(self):
+        """
+        Convert model to float16 where safe.
+        """
+        self.apply(convert_module_to_f16)
+
+    def convert_to_fp32(self):
+        """
+        Convert model back to float32.
+        """
+        self.apply(convert_module_to_f32)  
         
 
 def timestep_embedding(timesteps, dim, max_period=10000):
@@ -208,6 +222,7 @@ def timestep_embedding(timesteps, dim, max_period=10000):
       if dim % 2:
         embedding = th.cat([embedding, th.zeros_like(embedding[:, :1])], dim=-1)
       return embedding    
+
 
 
 
