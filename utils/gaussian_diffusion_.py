@@ -159,8 +159,9 @@ class VP_Diffusion:
         for i in range(num_graphs):
             start, end = batch.ptr[i], batch.ptr[i + 1]
             x = batch.x[start:end]
-            t = timesteps[i].clone().detach()
-            t = torch.tensor(t, dtype=torch.float32).to(device)
+            #t = timesteps[i].clone().detach()
+            #t = torch.tensor(t, dtype=torch.float32).to(device)
+            t = timesteps[i].to(device).long()
             x_noisy = self.q_sample(x, t)
             noisy_x.append(x_noisy)
 
@@ -292,6 +293,7 @@ class VP_Diffusion:
                
         return batch
         
+
 
 
 
