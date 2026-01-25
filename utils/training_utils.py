@@ -110,8 +110,6 @@ class TrainLoop:
 
         # AMP scaler (only if fp16)
         self.scaler = None
-        if self.use_fp16:
-            self._setup_fp16()
 
         # --------------------------------------------------
         # Sampler
@@ -137,7 +135,9 @@ class TrainLoop:
         # Load checkpoint + sync
         # --------------------------------------------------
         self._load_and_sync_parameters()
-
+        if self.use_fp16:
+            self._setup_fp16()
+            
         # --------------------------------------------------
         # Optimizer
         # --------------------------------------------------
@@ -535,6 +535,7 @@ def log_loss_dict(diffusion, ts, losses):
             key,
             values.mean().item(),
         )
+
 
 
 
