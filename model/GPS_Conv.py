@@ -155,7 +155,7 @@ class GPSConv(nn.Module):
         # --- Global Attention ---
         if self.att_type == 'transformer':
             y, mask = to_dense_batch(h, batch)
-            y, _ = self.attn(y, y, y, key_padding_mask=~mask, need_weights=False)
+            y, _ = self.attn(y, y, y, key_padding_mask=~mask, need_weights=True)
             y = y[mask]
         elif self.att_type == 'hydra':
             y, mask = to_dense_batch(h, batch)
@@ -195,6 +195,7 @@ class GPSConv(nn.Module):
     def __repr__(self):
 
         return f'{self.__class__.__name__}({self.channels}, conv={self.conv}, heads={self.heads})'
+
 
 
 
