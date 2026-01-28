@@ -157,6 +157,7 @@ class GPSConv(nn.Module):
             y, mask = to_dense_batch(h, batch)
             y,  attn_weights = self.attn(y, y, y, key_padding_mask=~mask, need_weights=True)
             self.last_attn_weights = attn_weights.detach()
+            self.last_mask = mask.detach()
             y = y[mask]
         elif self.att_type == 'hydra':
             y, mask = to_dense_batch(h, batch)
@@ -196,6 +197,7 @@ class GPSConv(nn.Module):
     def __repr__(self):
 
         return f'{self.__class__.__name__}({self.channels}, conv={self.conv}, heads={self.heads})'
+
 
 
 
