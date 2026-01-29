@@ -8,7 +8,7 @@ from torch_geometric.loader import DataLoader
 from rdkit import Chem, Geometry
 from rdkit.Chem import AllChem
 
-from utils.utils import time_limit, TimeoutException
+#from utils.utils import time_limit, TimeoutException
 from utils.visualise import PDBFile
 from spyrmsd import molecule, graph
 from rdkit.Geometry import Point3D
@@ -232,5 +232,6 @@ class InferenceDataset(Dataset):
 
     def get(self, idx):
         return self.data[idx]
+
 
 
