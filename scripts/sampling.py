@@ -32,15 +32,6 @@ from rdkit import Chem
 from rdkit.Geometry import Point3D
 from rdkit.Chem import AllChem
 
-from utils import dist_util, logger
-from utils.featurization import construct_loader
-from utils.script_util import (
-    model_and_diffusion_defaults,
-    create_model_and_diffusion,
-    add_dict_to_argparser,
-    args_to_dict,
-)
-
 # -------------------------------------------------------
 # RDKit conversion utilities
 # -------------------------------------------------------
@@ -188,3 +179,4 @@ def create_argparser():
 
 if __name__ == "__main__":
     main()
+
