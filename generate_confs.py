@@ -7,7 +7,7 @@ from tqdm import tqdm
 import yaml
 import os.path as osp
 
-from utils.utils import get_model
+from utils.model import GraphModel
 from diffusion.sampling import *
 
 
@@ -171,3 +171,4 @@ if args.out:
         pickle.dump(conformer_dict, f)
 
 print("Generated conformers for", len(conformer_dict), "molecules")
+
