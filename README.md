@@ -24,7 +24,7 @@ We recommend using **Conda** to manage dependencies. If Conda is not installed, 
 Create a Python 3.10 environment:
 
 ```bash
-conda create --name my_env python=3.10
+conda create --n my_env python=3.10
 ```
 Activate the environment:
 ```bash
