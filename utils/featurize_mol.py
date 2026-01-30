@@ -14,7 +14,7 @@ import random
 import random
 import torch
 import torch.nn.functional as F
-#from torch_scatter import scatter
+from torch_scatter import scatter
 from torch_geometric.data import Dataset, Data
 from torch_geometric.loader import DataLoader
 import torch_geometric.transforms as T
@@ -157,3 +157,4 @@ def featurize_mol_from_smiles(smiles, dataset='drugs'):
     data = featurize_mol(mol, types)
     data.name = smiles
     return mol, data
+
