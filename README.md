@@ -146,4 +146,6 @@ python scripts/sampling.py \
   --batch_size 16 \
   --sample_steps 100
 ```
+## Feedback and Collaboration
 
+We welcome feedback and suggestions from the community. Constructive discussion and external input are invaluable for refining and extending this work, and we are happy to engage with researchers interested in building upon this method.
