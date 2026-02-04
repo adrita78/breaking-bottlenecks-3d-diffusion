@@ -25,3 +25,80 @@ import torch
 import yaml
 from model_dir.LapPE import AddCustomLaplacianEigenPE
 from model_dir.Graph_Model_ import GraphModel
+
+
+dataset = "qm9"
+parser = ArgumentParser()
+                  
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+parser.add_argument('--model_dir', type=str)
+parser.add_argument('--ckpt', type=str, default='model0132.pt', help='Checkpoint to use inside the folder')
+parser.add_argument('--out', type=str, help='Path to the output pickle file')
+parser.add_argument('--test_csv', type=str, help='Path to csv file with list of smiles and number conformers')
+parser.add_argument('--pre_mmff', action='store_true', default=False, help='Whether to run MMFF on the local structure conformer')
+parser.add_argument('--post_mmff', action='store_true', default=False, help='Whether to run MMFF on the final generated structures')
+parser.add_argument('--no_model', action='store_true', default=False, help='Whether to return seed conformer without running model')
+parser.add_argument('--seed_confs', help='Path to directly specify the seed conformers')
+parser.add_argument('--seed_mols', help='Path to directly specify the seed molecules (instead of from SMILE)')
+parser.add_argument('--single_conf', action='store_true', default=False, help='Whether to start from a single local structure')
+parser.add_argument('--inference_steps', type=int, default=20, help='Number of denoising steps')
+parser.add_argument('--limit_mols', type=int, default=None, help='Limit to the number of molecules')
+parser.add_argument('--confs_per_mol', type=int, default=None, help='If set for every molecule this number of conformers is generated, '
+                                                                    'otherwise 2x the number in the csv file')
+                                                                    
+                                                                  
+parser.add_argument('--dataset', type=str, default='qm9', help='Dataset name (e.g., qm9, drugs)')                    
+parser.add_argument("--config", type=str, default="model_config.yaml")  
+parser.add_argument('--batch_size', type=int, default=32, help='Number of conformers generated in parallel')
+parser.add_argument('--dump_pymol', type=str, default=None, help='Whether to save .pdb file with denoising dynamics')
+parser.add_argument('--tqdm', action='store_true', default=False, help='Whether to show progress bar')
+                                                                                                                                    
+                                                                    
+args = parser.parse_args()
+
+if args.seed_confs:
+    print("Using local structures from", args.seed_confs)
+    with open(args.seed_confs, 'rb') as f:
+        seed_confs = pickle.load(f)
+elif args.seed_mols:
+    print("Using molecules from", args.seed_mols)
+    with open(args.seed_mols, 'rb') as f:
+        seed_confs = pickle.load(f)
+
+def try_mmff(mol):
+    try:
+        AllChem.MMFFOptimizeMoleculeConfs(mol, mmffVariant='MMFF94s')
+        return True
+    except Exception as e:
+        return False
+    
+def get_seed(smi, seed_confs=None, dataset='drugs'):
+    if seed_confs:
+        if smi not in seed_confs:
+            print("smile not in seeds", smi)
+            return None, None
+        mol = seed_confs[smi][0]
+        data = featurize_mol(mol, dataset)
+    else:
+        mol, data = featurize_mol_from_smiles(smi, dataset=dataset)
+        if not mol:
+            return None, None
+
+    return mol, data
+    
+    
+def embed_func(mol, numConfs):
+    AllChem.EmbedMultipleConfs(mol, numConfs=numConfs, numThreads=5)
+    return mol    
+    
+    
+test_data = pd.read_csv(args.test_csv).values
+if args.limit_mols:
+    test_data = test_data[:args.limit_mols]
+
+conformer_dict = {}
+if args.tqdm:
+    test_data = tqdm(enumerate(test_data), total=len(test_data))
+else:
+    test_data = enumerate(test_data)
+    
