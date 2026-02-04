@@ -301,6 +301,24 @@ class VP_Diffusion:
         return sampled_conformers
         
 
+        
+class InferenceDataset(Dataset):
+    def __init__(self, conformers, transform=None):
+        super().__init__()
+        self.conformers = conformers
+        self.transform = transform
+
+    def len(self):
+        return len(self.conformers)
+
+    def get(self, idx):
+        data = self.conformers[idx]
+
+        if self.transform is not None:
+            data = self.transform(data)
+
+        return data
+
 
 
 
