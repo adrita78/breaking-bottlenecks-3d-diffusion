@@ -1,7 +1,7 @@
 import random
 import os
 import pandas as pd
-from featurize_mol import featurize_mol, featurize_mol_from_smiles
+from utils.featurize_mol import featurize_mol, featurize_mol_from_smiles
 import torch, copy
 from copy import deepcopy
 import numpy as np
