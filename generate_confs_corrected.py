@@ -10,7 +10,6 @@ from torch_geometric.loader import DataLoader
 from rdkit import Chem, Geometry
 from rdkit.Chem import AllChem
 from rdkit import Chem
-from rdkit.Chem import AllChem
 from rdkit.Geometry import Point3D
 
 #from utils.utils import time_limit, TimeoutException
@@ -19,7 +18,6 @@ from spyrmsd import molecule, graph
 from rdkit.Geometry import Point3D
 from copy import deepcopy
 from argparse import ArgumentParser
-import pickle
 import pickle
 from tqdm import tqdm
 import random
