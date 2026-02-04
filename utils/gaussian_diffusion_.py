@@ -296,9 +296,11 @@ class VP_Diffusion:
                 )
                 x_bar = out
                 batch.x = x_bar[batch.batch]
+                sampled_conformers.extend(batch.to_data_list())
                
-        return batch
+        return sampled_conformers
         
+
 
 
 
