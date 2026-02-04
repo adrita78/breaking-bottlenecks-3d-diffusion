@@ -39,199 +39,82 @@ def get_seed(smi, seed_confs=None, dataset='drugs'):
     return mol, data
 
 
-def embed_seeds(
-    mol,
-    data,
-    n_confs,
-    single_conf=False,
-    embed_func=None,
-    pdb=None,
-    mmff=False,
-):
-    """
-    Generate RDKit conformers and convert them into PyG Data objects.
-    """
 
-    embed_num_confs = 1 if single_conf else n_confs
+def embed_seeds(mol, data, n_confs, single_conf=False, smi=None, embed_func=None, seed_confs=None, pdb=None, mmff=False):
+    if not seed_confs:
+        embed_num_confs = n_confs if not single_conf else 1
+        try:
+            mol = embed_func(mol, embed_num_confs)
+        except Exception as e:
+            print(e.output)
+            pass
+        if len(mol.GetConformers()) != embed_num_confs:
+            print(len(mol.GetConformers()), '!=', embed_num_confs)
+            return [], None
+        if mmff: try_mmff(mol)
 
-    try:
-        mol = embed_func(mol, embed_num_confs)
-    except Exception as e:
-        print("Embedding failed:", e)
-        return [], None
-
-    if mol.GetNumConformers() != embed_num_confs:
-        print(
-            f"Expected {embed_num_confs} conformers, "
-            f"got {mol.GetNumConformers()}"
-        )
-        return [], None
-
-    if mmff:
-        try_mmff(mol)
-
-    if pdb:
-        pdb = PDBFile(mol)
-
+    if pdb: pdb = PDBFile(mol)
     conformers = []
-
-    for i in range(embed_num_confs):
+    for i in range(n_confs):
         data_conf = copy.deepcopy(data)
+        if single_conf:
+            seed_mol = copy.deepcopy(mol)
+        elif seed_confs:
+            seed_mol = random.choice(seed_confs[smi])
+        else:
+            seed_mol = copy.deepcopy(mol)
+            [seed_mol.RemoveConformer(j) for j in range(n_confs) if j != i]
 
-        conf = mol.GetConformer(i)
-        positions = conf.GetPositions()
-
-        data_conf.pos = torch.from_numpy(positions).float()
-
-        # Optional: keep reference to the RDKit conformer
-        data_conf.seed_mol = copy.deepcopy(mol)
-        data_conf.seed_mol.RemoveAllConformers()
-        data_conf.seed_mol.AddConformer(conf, assignId=True)
-
+        data_conf.pos = torch.from_numpy(seed_mol.GetConformers()[0].GetPositions()).float()
+        data_conf.seed_mol = copy.deepcopy(seed_mol)
         if pdb:
-            pdb.add(data_conf.pos, part=i, order=0)
+            pdb.add(data_conf.pos, part=i, order=0, repeat=still_frames)
+            if seed_confs:
+                pdb.add(data_conf.pos, part=i, order=-2, repeat=still_frames)
+            pdb.add(torch.zeros_like(data_conf.pos), part=i, order=-1)
 
         conformers.append(data_conf)
-
-
     if mol.GetNumConformers() > 1:
-        mol.RemoveAllConformers()
-        mol.AddConformer(conformers[0].seed_mol.GetConformer(0), assignId=True)
-
+        [mol.RemoveConformer(j) for j in range(n_confs) if j != 0]
     return conformers, pdb
+       
     
-def pyg_to_mol(
-    mol,
-    data,
-    mmff=False,
-    rmsd=False,
-    copy=True
-):
+def pyg_to_mol(mol, data, mmff=False, rmsd=True, copy=True):
+    
+    if not mol.GetNumConformers():
+        conformer = Chem.Conformer(mol.GetNumAtoms())
+        mol.AddConformer(conformer)
 
-    # --------------------------------------------------
-    # 1. Ensure a conformer exists
-    # --------------------------------------------------
-    if mol.GetNumConformers() == 0:
-        conf = Chem.Conformer(mol.GetNumAtoms())
-        mol.AddConformer(conf)
-
-    # --------------------------------------------------
-    # 2. Write coordinates from data.pos
-    # --------------------------------------------------
+    # Get coordinates
     coords = data.pos
     if not isinstance(coords, np.ndarray):
-        coords = coords.detach().cpu().double().numpy()
+        coords = coords.double().cpu().numpy()
 
+    # Set atomic positions
     conf = mol.GetConformer(0)
     for i in range(coords.shape[0]):
         conf.SetAtomPosition(
-            i,
-            Point3D(
-                float(coords[i, 0]),
-                float(coords[i, 1]),
-                float(coords[i, 2]),
-            )
+            i, Point3D(coords[i, 0], coords[i, 1], coords[i, 2])
         )
 
-    # --------------------------------------------------
-    # 3. Optional MMFF relaxation
-    # --------------------------------------------------
     if mmff:
         try:
-            AllChem.MMFFOptimizeMolecule(mol)
+            AllChem.MMFFOptimizeMoleculeConfs(
+                mol, mmffVariant="MMFF94s"
+            )
         except Exception:
             pass
 
-    # --------------------------------------------------
-    # 4. Optional RMSD (only if seed exists)
-    # --------------------------------------------------
+
     if rmsd and hasattr(data, "seed_mol"):
         try:
             mol.rmsd = AllChem.GetBestRMS(
                 Chem.RemoveHs(data.seed_mol),
-                Chem.RemoveHs(mol),
+                Chem.RemoveHs(mol)
             )
         except Exception:
             pass
 
-    if not copy:
-        return mol
-
-    return deepcopy(mol)
-
-
-def sample(
-    conformers,
-    model,
-    diffusion,
-    steps=100,
-    batch_size=32,
-    device=None,
-):
-    """
-    Node-feature-only Gaussian diffusion sampler.
-
-    - conformers: list[torch_geometric.data.Data]
-    - model: trained denoising model
-    - diffusion: VP_Diffusion instance
-    - steps: reverse diffusion steps
-    - batch_size: batch size for inference
-    """
-
-    if device is None:
-        device = next(model.parameters()).device
-
-    conf_dataset = InferenceDataset(conformers)
-    loader = DataLoader(conf_dataset, batch_size=batch_size, shuffle=False)
-
-    model.eval()
-
-    sampled_conformers = []
-
-    for data in loader:
-        data = data.to(device)
-
-        # --------------------------------------------------
-        # 1. Initialize x_T ~ N(0, I)
-        # --------------------------------------------------
-        data.x = torch.randn_like(data.x, device=device)
-        num_graphs = data.ptr.shape[0] - 1
-
-        # Optional conditioning (use zeros if none)
-        x_bar = torch.zeros(num_graphs, 74, device=device)
-
-        T = torch.full(
-            (num_graphs,),
-            diffusion.num_timesteps - 1,
-            device=device,
-            dtype=torch.long,
-        )
-
-        with torch.no_grad():
-            for _ in range(steps):
-                x_bar = diffusion.p_sample(
-                    model=model,
-                    batch=data,
-                    t=T,
-                    x_bar=x_bar,
-                )
-                data.x = x_bar
-
-        sampled_conformers.extend(data.to_data_list())
-
-    return sampled_conformers
-
-
-class InferenceDataset(Dataset):
-    def __init__(self, data_list):
-        super().__init__()
-        self.data = data_list
-
-    def len(self):
-        return len(self.data)
-
-    def get(self, idx):
-        return self.data[idx]
-
+    return mol if not copy else deepcopy(mol)
 
 
