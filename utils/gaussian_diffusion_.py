@@ -270,6 +270,7 @@ class VP_Diffusion:
 
         for batch in loader:
             batch = batch.to(device)
+        sampled_conformers = []    
         num_graphs= (batch.ptr.shape[0]-1)
         
         if noise is None:
@@ -298,6 +299,7 @@ class VP_Diffusion:
                
         return batch
         
+
 
 
 
