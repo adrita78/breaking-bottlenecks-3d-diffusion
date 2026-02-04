@@ -3,7 +3,7 @@ import argparse
 import os.path as osp
 from typing import Any, Dict, Optional
 import math
-import model.egnn_clean as eg
+from .import egnn_clean as eg
 from torch.nn import (
     BatchNorm1d,
     Embedding,
@@ -222,6 +222,7 @@ def timestep_embedding(timesteps, dim, max_period=10000):
       if dim % 2:
         embedding = th.cat([embedding, th.zeros_like(embedding[:, :1])], dim=-1)
       return embedding    
+
 
 
 
