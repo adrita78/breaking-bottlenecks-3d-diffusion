@@ -299,8 +299,15 @@ class VP_Diffusion:
                 sampled_conformers.extend(batch.to_data_list())
                
         return sampled_conformers
-        
 
+transform = AddCustomLaplacianEigenPE(
+    k=10,
+    is_undirected=True,
+    attr_names={
+        "eigvecs": "lap_eigvecs",
+        "eigvals": "lap_eigvals",
+    },
+)        
         
 class InferenceDataset(Dataset):
     def __init__(self, conformers, transform=None):
@@ -318,5 +325,6 @@ class InferenceDataset(Dataset):
             data = self.transform(data)
 
         return data
+
 
 
