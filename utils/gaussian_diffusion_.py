@@ -245,8 +245,8 @@ class VP_Diffusion:
 
     def p_sample_loop(
         self,
+        conformers,
         model,
-        batch,
         noise=None,
         condition=None,
         model_kwargs=None,
@@ -262,8 +262,13 @@ class VP_Diffusion:
         Returns a generator over dicts, where each dict is the return value of
         p_sample().
         """
+        conf_dataset = InferenceDataset(conformers, transform=transform)
+
+        loader = DataLoader(conf_dataset, batch_size=args.batch_size, shuffle=False)
         if device is None:
             device = next(model.parameters()).device
+
+        
         batch = batch.to(device)
         num_graphs= (batch.ptr.shape[0]-1)
         
@@ -293,6 +298,7 @@ class VP_Diffusion:
                
         return batch
         
+
 
 
 
