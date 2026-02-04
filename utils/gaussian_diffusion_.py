@@ -268,8 +268,8 @@ class VP_Diffusion:
         if device is None:
             device = next(model.parameters()).device
 
-        
-        batch = batch.to(device)
+        for batch in loader:
+            batch = batch.to(device)
         num_graphs= (batch.ptr.shape[0]-1)
         
         if noise is None:
@@ -298,6 +298,7 @@ class VP_Diffusion:
                
         return batch
         
+
 
 
 
