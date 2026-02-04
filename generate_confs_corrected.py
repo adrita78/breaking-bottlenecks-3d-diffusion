@@ -72,20 +72,6 @@ def try_mmff(mol):
     except Exception as e:
         return False
     
-def get_seed(smi, seed_confs=None, dataset='drugs'):
-    if seed_confs:
-        if smi not in seed_confs:
-            print("smile not in seeds", smi)
-            return None, None
-        mol = seed_confs[smi][0]
-        data = featurize_mol(mol, dataset)
-    else:
-        mol, data = featurize_mol_from_smiles(smi, dataset=dataset)
-        if not mol:
-            return None, None
-
-    return mol, data
-    
     
 def embed_func(mol, numConfs):
     AllChem.EmbedMultipleConfs(mol, numConfs=numConfs, numThreads=5)
