@@ -112,3 +112,9 @@ def sample_confs(raw_smi, n_confs, smi):
         print("Failed to embed", smi)
         return None
 
+    sampled_batch = diffusion.p_sample_loop(
+                    model=model,
+                    batch=batch,
+                    sample_steps=args.sample_steps,)
+
+
