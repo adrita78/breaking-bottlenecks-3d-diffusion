@@ -87,4 +87,28 @@ if args.tqdm:
     test_data = tqdm(enumerate(test_data), total=len(test_data))
 else:
     test_data = enumerate(test_data)
-    
+
+
+def sample_confs(raw_smi, n_confs, smi):
+    print(raw_smi)
+    if args.seed_confs:
+        mol, data = get_seed(raw_smi, seed_confs=seed_confs, dataset=args.dataset)
+    elif args.seed_mols:
+        mol, data = get_seed(smi, seed_confs=seed_confs, dataset=args.dataset)
+        mol.RemoveAllConformers()
+    else:
+        mol, data = get_seed(smi, dataset=args.dataset)
+    if not mol:
+        print('Failed to get seed', smi)
+        return None
+
+    if args.seed_confs:
+        conformers, pdb = embed_seeds(mol, data, n_confs, single_conf=args.single_conf, smi=raw_smi,
+                                      pdb=args.dump_pymol, seed_confs=seed_confs)
+    else:
+        conformers, pdb = embed_seeds(mol, data, n_confs, single_conf=args.single_conf,
+                                      pdb=args.dump_pymol, embed_func=embed_func, mmff=args.pre_mmff)
+    if not conformers:
+        print("Failed to embed", smi)
+        return None
+
