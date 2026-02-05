@@ -116,5 +116,21 @@ def sample_confs(raw_smi, n_confs, smi):
                     model=model,
                     conformers= conformers,
                     sample_steps=args.sample_steps,)
+    
+    
+    sampled_mols = batch_to_conformers(
+                sampled_batch,
+                do_mmff=not args.no_mmff,
+            )
+    if args.dump_pymol:
+        if not osp.isdir(args.dump_pymol):
+            os.mkdir(args.dump_pymol)
+        pdb.write(f'{args.dump_pymol}/{smi_idx}.pdb', limit_parts=5)
 
+    mols = [pyg_to_mol(mol, conf, args.post_mmff, rmsd=not args.no_energy) for conf in conformers]
+    for mol, data in zip(mols, conformers):
+        populate_likelihood(mol, data, water=args.water, xtb=args.xtb)
 
+    if args.xtb:
+        mols = [mol for mol in mols if mol.xtb_energy]
+    return mols
