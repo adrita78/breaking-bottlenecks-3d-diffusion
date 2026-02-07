@@ -60,7 +60,7 @@ class GPSConv(nn.Module):
         d_state: int = 16,
         d_conv: int = 4,
         act_kwargs: Optional[Dict[str, Any]] = None,
-        norm: Optional[str] = 'batch_norm',
+        norm: Optional[str] = 'layer_norm',
         norm_kwargs: Optional[Dict[str, Any]] = None,
     ):
         super().__init__()
@@ -197,6 +197,7 @@ class GPSConv(nn.Module):
     def __repr__(self):
 
         return f'{self.__class__.__name__}({self.channels}, conv={self.conv}, heads={self.heads})'
+
 
 
 
