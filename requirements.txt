@@ -30,5 +30,3 @@ wandb==0.15.8
 rdkit
 zetascale==2.8.8
 
-
-
